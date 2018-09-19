@@ -23,3 +23,7 @@ void MainWindow::on_connectButton_clicked(){
 void MainWindow::showConnectionStatus(){
     ui->checkConn->setChecked(true);
 }
+
+void MainWindow::on_timeButton_clicked(){
+    ui->editTime->setPlainText(QString::number(server->getSystemTime()));
+}
