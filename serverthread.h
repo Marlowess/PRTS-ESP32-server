@@ -25,6 +25,7 @@ public:
         qDebug("Nuovi dati da leggere");
     }
     unsigned long getSystemTime();
+    void packetCreator(char *_buf, QByteArray array, int size);
 
 signals:
     void error(QTcpSocket::SocketError socketError);
