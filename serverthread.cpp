@@ -30,12 +30,21 @@ void ServerThread::run(){
         unsigned long time = this->getSystemTime();
         qDebug() << "Time: " << time << endl;
         qDebug() << "Time2: " << std::to_string(time).c_str() << endl;
-        //tcpSocket.flush();
-        //QByteArray array(std::to_string(time).c_str());
-        //tcpSocket.write(array, 10);
+        int writeSize = sizeof(unsigned long);
+        int toWrite = writeSize;
+        int remain;
+        QByteArray writingBuffer(std::to_string(time).c_str());
+        while(toWrite > 0){
+            remain = tcpSocket.write(writingBuffer);
+            if(remain == -1){
+                qDebug() << "Error on writing" << endl;
+                break;
+            }
+            toWrite -= remain;
+        }
+        tcpSocket.disconnectFromHost();
+        tcpSocket.waitForDisconnected();
     }
-    tcpSocket.disconnectFromHost();
-    tcpSocket.waitForDisconnected();
 }
 
 /** Returns the system time **/
