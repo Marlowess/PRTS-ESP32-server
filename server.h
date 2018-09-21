@@ -26,13 +26,24 @@ protected:
 private:
     int port; // server port listening on
     int number_of_hosts; // number of working boards, setted by user throught GUI or config. file
+    int syncronizedBoards;
     int active_threads;
 
 private slots:
     void threadFinished();
+    void boardReadySlotFather(){
+        qDebug() << "Board ready signal received" << endl;
+        syncronizedBoards = 0;
+        //syncronizedBoards--;
+        if(syncronizedBoards == 0){
+            emit boardReadySignalFather();
+            // tutti i thread autorizzano le board a catturare pacchetti
+        }
+    }
 
 signals:
     void newConnect();
+    void boardReadySignalFather();
 
 };
 

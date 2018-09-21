@@ -70,6 +70,10 @@ void Server::incomingConnection(qintptr socketDescriptor){
     ServerThread *thread = new ServerThread(socketDescriptor, this);
     connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
     connect(thread, &ServerThread::finished, this, &Server::threadFinished);
+
+    connect(thread, &ServerThread::boardReadySignalChild, this, &Server::boardReadySlotFather);
+    connect(this, &Server::boardReadySignalFather, thread, &ServerThread::boardReadySlotChild);
+
     newThreadRecord();
     thread->start();
 

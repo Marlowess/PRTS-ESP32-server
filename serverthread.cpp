@@ -3,7 +3,7 @@
 ServerThread::ServerThread(int socketDescriptor, QObject *parent)
     :QThread(parent), socketDescriptor(socketDescriptor){}
 
-void ServerThread::run(){
+void ServerThread::run(){    
     QTcpSocket tcpSocket;
     if (!tcpSocket.setSocketDescriptor(socketDescriptor)) {
         emit error(tcpSocket.error());
@@ -46,6 +46,13 @@ void ServerThread::run(){
                 // QUI dovrà essere messa l'attesa su condition variable. Si sbloccherà quando
                 // tutte le board saranno state sentite, oppure allo scadere di un determinato timer, se una
                 // delle board ha perso la connessione alla rete
+
+                 emit boardReadySignalChild();
+                    // questo signal è collegato allo slot del thread padre, il quale decrementa
+                    // un contatore (numero di board sincronizzate). Quando quel valore raggiunge lo zero
+                    // il thread padre manda un SIGNAL a tutti i thread figli, i quali manderanno il messaggio
+                    // alle board affinchè esse partano
+                // wait su condition variable
                 result = tcpSocket.write(QByteArray("GO"));
                 if(result == -1 || result < 2){
                     qDebug() << "Error on sending start signal" << endl;

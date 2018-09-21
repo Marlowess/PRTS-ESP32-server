@@ -29,7 +29,12 @@ public:
 
 signals:
     void error(QTcpSocket::SocketError socketError);
+    void boardReadySignalChild();
 
+public slots:
+    void boardReadySlotChild(){
+        qDebug() << "Authorized to start capture" << endl;
+    }
 private:
     int socketDescriptor;
 };
