@@ -42,6 +42,15 @@ void ServerThread::run(){
                     qDebug() << "Error on sending timestamp" << endl;
                     break;
                 }
+
+                // QUI dovrà essere messa l'attesa su condition variable. Si sbloccherà quando
+                // tutte le board saranno state sentite, oppure allo scadere di un determinato timer, se una
+                // delle board ha perso la connessione alla rete
+                result = tcpSocket.write(QByteArray("GO"));
+                if(result == -1 || result < 2){
+                    qDebug() << "Error on sending start signal" << endl;
+                    break;
+                }
             }
         }
 
