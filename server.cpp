@@ -1,7 +1,7 @@
 #include "server.h"
 
 /** Constructor **/
-Server::Server(QObject *parent) : QTcpServer(parent){
+Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0){
 
 }
 
@@ -36,6 +36,19 @@ void Server::setConnection(){
     qDebug("The server is running\n");
 }
 
+void Server::setNumberOfHosts(int n){
+    this->number_of_hosts = n;
+}
+
+int Server::getNumberOfHosts(int){
+    return this->number_of_hosts;
+}
+
+void Server::newThreadRecord(){
+    qDebug("New Thread\n");
+    active_threads += 1;
+}
+
 /** Returns the system time **/
 unsigned long Server::getSystemTime(){
     double now = std::chrono::duration_cast<std::chrono::seconds>(
@@ -48,4 +61,25 @@ unsigned long Server::getSystemTime(){
 void Server::incomingConnection(qintptr socketDescriptor){
     qDebug("New Connection!");
     emit newConnect();
+
+    // Mettere qui un controllo sul numero di thread attualmente in vita, confrontandoli con il numero
+    // di board che il sistema si aspetta, in base a quando definito dall'utente tramite GUI
+    // Se il numero di thread è uguale a quello attesso, il server deve mettersi in attesa dei vari thread
+    // tramite join()
+
+    ServerThread *thread = new ServerThread(socketDescriptor, this);
+    connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
+    connect(thread, &ServerThread::finished, this, &Server::threadFinished);
+    newThreadRecord();
+    thread->start();
+
 }
+
+void Server::threadFinished(){
+    qDebug("Thread finished\n");
+    this->active_threads -= 1;
+}
+
+
+
+
