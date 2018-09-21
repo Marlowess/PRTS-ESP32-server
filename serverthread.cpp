@@ -10,8 +10,8 @@ void ServerThread::run(){
         return;
     }
 
-    while(tcpSocket.waitForReadyRead(5000)){
-        //tcpSocket.waitForReadyRead(-1);
+    while(tcpSocket.state() == QTcpSocket::ConnectedState){
+        tcpSocket.waitForReadyRead(-1);
         QByteArray buffer = tcpSocket.read(sizeof(int));
         QDataStream ds(buffer);
         int size;
@@ -28,7 +28,7 @@ void ServerThread::run(){
 
         if(size == 1){
             dataBuffer = tcpSocket.read(1);
-            if(dataBuffer.size() != 1){
+            if(dataBuffer.size() < 1){
                 qDebug() << "Error on size" << endl;
                 break;
             }
@@ -38,7 +38,7 @@ void ServerThread::run(){
                 qDebug() << "Time: " << time << endl;
                 QByteArray writingBuffer(std::to_string(time).c_str());
                 int result = tcpSocket.write(writingBuffer);
-                if(result == -1){
+                if(result == -1 || result < writingBuffer.size()){
                     qDebug() << "Error on sending timestamp" << endl;
                     break;
                 }
@@ -48,7 +48,7 @@ void ServerThread::run(){
         // CASO DI INVIO DI PACCHETTI DA PARTE DEL CLIENT
         else{
             dataBuffer = tcpSocket.read(size);
-            if(dataBuffer.size() != size){
+            if(dataBuffer.size() < size){
                 qDebug() << "Error on receiving packet" << endl;
                 break;
             }
@@ -59,7 +59,7 @@ void ServerThread::run(){
     }
 
     tcpSocket.disconnectFromHost();
-    tcpSocket.waitForDisconnected();
+    //tcpSocket.waitForDisconnected();
 }
 
 /** Returns the system time **/
