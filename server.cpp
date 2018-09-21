@@ -1,7 +1,7 @@
 #include "server.h"
 
 /** Constructor **/
-Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0){
+Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){
 
 }
 
@@ -55,6 +55,10 @@ unsigned long Server::getSystemTime(){
                 std::chrono::system_clock::now().time_since_epoch()).count();
     unsigned long _now = htonl((unsigned long) now);
     return _now;
+}
+
+bool Server::allBoardSyncro(){
+    return syncronizedBoards == 0;
 }
 
 /** Invoked when a new connection is available **/

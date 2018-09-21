@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QTcpSocket>
+#include <QTcpServer>
 #include <QByteArray>
 #include <QDataStream>
 #include <utility>
@@ -11,6 +12,9 @@
 #include <QDebug>
 #include <string>
 #include <cstdio>
+#include <condition_variable>
+#include <mutex>
+#include "server.h"
 
 class ServerThread : public QThread{
 
@@ -34,9 +38,14 @@ signals:
 public slots:
     void boardReadySlotChild(){
         qDebug() << "Authorized to start capture" << endl;
+        sleep(2);
+        cv.notify_one();
     }
 private:
     int socketDescriptor;
+    std::condition_variable cv;
+    std::mutex m;
+    QObject *parent;
 };
 
 #endif // SERVERTHREAD_H

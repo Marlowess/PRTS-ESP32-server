@@ -17,7 +17,8 @@ public:
     void setNumberOfHosts(int);
     int getNumberOfHosts(int);
     void newThreadRecord();
-    unsigned long getSystemTime();    
+    unsigned long getSystemTime();
+    bool allBoardSyncro();
     ~Server(){}
 
 protected:
@@ -33,7 +34,7 @@ private slots:
     void threadFinished();
     void boardReadySlotFather(){
         qDebug() << "Board ready signal received" << endl;
-        syncronizedBoards = 0;
+        //syncronizedBoards = 0;
         //syncronizedBoards--;
         if(syncronizedBoards == 0){
             emit boardReadySignalFather();

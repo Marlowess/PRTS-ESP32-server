@@ -1,7 +1,7 @@
 #include "serverthread.h"
 
 ServerThread::ServerThread(int socketDescriptor, QObject *parent)
-    :QThread(parent), socketDescriptor(socketDescriptor){}
+    :QThread(parent), socketDescriptor(socketDescriptor), parent(parent){}
 
 void ServerThread::run(){    
     QTcpSocket tcpSocket;
@@ -53,6 +53,10 @@ void ServerThread::run(){
                     // il thread padre manda un SIGNAL a tutti i thread figli, i quali manderanno il messaggio
                     // alle board affinchè esse partano
                 // wait su condition variable
+                std::unique_lock<std::mutex> ul(m);
+                cv.wait(ul);
+
+                qDebug() << "Woke up from condition variable lock" << endl;
                 result = tcpSocket.write(QByteArray("GO"));
                 if(result == -1 || result < 2){
                     qDebug() << "Error on sending start signal" << endl;
