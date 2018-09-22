@@ -1,7 +1,8 @@
 #include "serverthread.h"
 
 ServerThread::ServerThread(int socketDescriptor, QObject *parent)
-    :QThread(parent), socketDescriptor(socketDescriptor), parent(parent){}
+    :QThread(parent), socketDescriptor(socketDescriptor), flag(false){
+}
 
 void ServerThread::run(){    
     QTcpSocket tcpSocket;
@@ -41,11 +42,7 @@ void ServerThread::run(){
                 if(result == -1 || result < writingBuffer.size()){
                     qDebug() << "Error on sending timestamp" << endl;
                     break;
-                }
-
-                // QUI dovrà essere messa l'attesa su condition variable. Si sbloccherà quando
-                // tutte le board saranno state sentite, oppure allo scadere di un determinato timer, se una
-                // delle board ha perso la connessione alla rete
+                }          
 
                  emit boardReadySignalChild();
                     // questo signal è collegato allo slot del thread padre, il quale decrementa
@@ -54,7 +51,11 @@ void ServerThread::run(){
                     // alle board affinchè esse partano
                 // wait su condition variable
                 std::unique_lock<std::mutex> ul(m);
-                cv.wait(ul);
+
+                // TODO: controllare eventuali notifiche spurie con una lambda sul thread padre
+                cv.wait(ul, [](){
+                    return flag;
+                });
 
                 qDebug() << "Woke up from condition variable lock" << endl;
                 result = tcpSocket.write(QByteArray("GO"));

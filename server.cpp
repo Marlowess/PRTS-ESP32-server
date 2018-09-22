@@ -64,12 +64,7 @@ bool Server::allBoardSyncro(){
 /** Invoked when a new connection is available **/
 void Server::incomingConnection(qintptr socketDescriptor){
     qDebug("New Connection!");
-    emit newConnect();
-
-    // Mettere qui un controllo sul numero di thread attualmente in vita, confrontandoli con il numero
-    // di board che il sistema si aspetta, in base a quando definito dall'utente tramite GUI
-    // Se il numero di thread è uguale a quello attesso, il server deve mettersi in attesa dei vari thread
-    // tramite join()
+    emit newConnect();    
 
     ServerThread *thread = new ServerThread(socketDescriptor, this);
     connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
