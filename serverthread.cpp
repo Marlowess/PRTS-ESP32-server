@@ -44,16 +44,18 @@ void ServerThread::run(){
                     break;
                 }          
 
+                // questo signal è collegato allo slot del thread padre, il quale decrementa
+                // un contatore (numero di board sincronizzate). Quando quel valore raggiunge lo zero
+                // il thread padre manda un SIGNAL a tutti i thread figli, i quali manderanno il messaggio
+                // alle board affinchè esse inizino la fase di cattura dei pacchetti
                  emit boardReadySignalChild();
-                    // questo signal è collegato allo slot del thread padre, il quale decrementa
-                    // un contatore (numero di board sincronizzate). Quando quel valore raggiunge lo zero
-                    // il thread padre manda un SIGNAL a tutti i thread figli, i quali manderanno il messaggio
-                    // alle board affinchè esse partano
+
                 // wait su condition variable
                 std::unique_lock<std::mutex> ul(m);
 
-                // TODO: controllare eventuali notifiche spurie con una lambda sul thread padre
-                cv.wait(ul, [](){
+                // wait su condition variable. In fase di sblocco si controlla l'eventuale risveglio spurio,
+                // e nel caso si torna in fase di attesa su cv
+                cv.wait(ul, [&](){
                     return flag;
                 });
 
@@ -91,6 +93,7 @@ unsigned long ServerThread::getSystemTime(){
     return _now;
 }
 
+/** Makes the packet structure **/
 void ServerThread::packetCreator(char *_buf, QByteArray array, int size){
     int i = 0, j = 0;
     std::string str(array.toStdString());

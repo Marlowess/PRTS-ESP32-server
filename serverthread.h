@@ -37,7 +37,6 @@ signals:
 public slots:
     void boardReadySlotChild(){
         qDebug() << "Authorized to start capture" << endl;
-
         // Questo flag viene settato solo qui, perchè verrà utilizzato dal thread per escludere notifiche spurie
         // in uscita dalla condition variable
         this->flag = true;

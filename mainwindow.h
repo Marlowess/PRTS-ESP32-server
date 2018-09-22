@@ -20,8 +20,6 @@ private slots:
     void on_connectButton_clicked();
     void showConnectionStatus();
 
-    void on_timeButton_clicked();
-
 private:
     Ui::MainWindow *ui;
     Server *server;

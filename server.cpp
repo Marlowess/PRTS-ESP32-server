@@ -1,9 +1,7 @@
 #include "server.h"
 
 /** Constructor **/
-Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){
-
-}
+Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){}
 
 /** Sets server port **/
 void Server::setPort(int port){
@@ -74,13 +72,19 @@ void Server::incomingConnection(qintptr socketDescriptor){
     connect(this, &Server::boardReadySignalFather, thread, &ServerThread::boardReadySlotChild);
 
     newThreadRecord();
-    thread->start();
+    thread->start();    
+    this->active_threads += 1; // incremento il conteggio dei thread figli
 
 }
 
 void Server::threadFinished(){
     qDebug("Thread finished\n");
     this->active_threads -= 1;
+    if(active_threads == 0){
+        // Quando il numero di thread scende a zero significa che tutte le board hanno iniziato la fase di cattura
+        // dei pacchetti. In questa fase di attesa il server può svolgere i vari controlli sui pacchetti, evitando
+        // quindi di farlo durante lo scambio di dati, quando il carico di lavoro è già alto
+    }
 }
 
 
