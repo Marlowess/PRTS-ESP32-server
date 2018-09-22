@@ -35,6 +35,7 @@ HEADERS += \
     serverthread.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    testwindow.ui
 
 CONFIG += c++11

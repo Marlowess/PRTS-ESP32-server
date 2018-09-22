@@ -27,8 +27,17 @@ protected:
 private:
     int port; // server port listening on
     int number_of_hosts; // number of working boards, setted by user throught GUI or config. file
-    int syncronizedBoards;
     int active_threads;
+    int syncronizedBoards;
+
+
+    // Mettere tra gli attributi anche uno shared pointer incapsulante un oggetto che ingloba una lista/mappa
+    // di pacchetti.
+    // Tale smart pointer sarà passato a ciascun thread figlio, il quale inserirà i vari pacchetti man mano che
+    // saranno ricevuti dalle board. La classe che ingloba la struttura deve gestire la concorrenza per
+    // garantire l'accesso concorrento alla lista/mappa.
+    // In alternativa, proteggere un oggetto DB all'interno dello shared pointer e passare una copia
+    // ad ogni thread
 
 private slots:
     void threadFinished();

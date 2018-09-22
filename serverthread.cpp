@@ -33,6 +33,12 @@ void ServerThread::run(){
                 qDebug() << "Error on size" << endl;
                 break;
             }
+
+            // Dati di dimensione 1 non possono che corrispondere alla richiesta di sincronizzazione orologio
+            // da parte delle board. Questo comando viene inviato in due diverse situazioni:
+                // 1) la board viene attivata per la prima volta, e dunque ha bisogno di settare il proprio
+                // clock interno prima di cominciare la cattura
+                // 2) dopo l'invio dei pacchetti la board richiede l'orologio prima di effettuare una nuova cattura
             if(dataBuffer.toStdString().compare("|") == 0){
                 qDebug() << "I'm here" << endl;
                 unsigned long time = this->getSystemTime();
@@ -68,7 +74,13 @@ void ServerThread::run(){
             }
         }
 
-        // CASO DI INVIO DI PACCHETTI DA PARTE DEL CLIENT
+        // Se i dati hanno una dimensione maggiore di 1, significa che ci troviamo nella fase di trasmissione
+        // dei dati tra client e server.
+        // TODO: stabilire se il controllo hash debba essere fatto adesso oppure nella successiva fase, quella
+        // in cui il thread padre effettua le analisi mentre le board catturano.
+        // Tip: le analisi e il salvataggio del DB potrebbe essere svolto tra il momento in cui tutte le board
+        // sono sincronizzate (avviene il risveglio dei thread bloccati sulla condition variable) oppure subito
+        // dopo.
         else{
             dataBuffer = tcpSocket.read(size);
             if(dataBuffer.size() < size){
@@ -81,6 +93,7 @@ void ServerThread::run(){
         }
     }
 
+    // Arrivati qui la board ha già effettuato la disconnessione
     tcpSocket.disconnectFromHost();
     //tcpSocket.waitForDisconnected();
 }
