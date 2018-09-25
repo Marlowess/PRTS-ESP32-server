@@ -89,6 +89,9 @@ void ServerThread::run(){
             }
             char _buf[256];
             packetCreator(_buf, dataBuffer, size);
+
+            /* TODO Implementare una nuova funzione di hash standard, come MD5 */
+            qDebug() << "Hash string: " << hashFunction(std::string(_buf)).c_str();
             qDebug() << "Pacchetto: " << _buf << endl;
         }
     }

@@ -14,6 +14,8 @@
 #include <cstdio>
 #include <condition_variable>
 #include <mutex>
+#include <vector>
+#include "utilities.h"
 
 class ServerThread : public QThread{
 
@@ -28,7 +30,8 @@ public:
         qDebug("Nuovi dati da leggere");
     }
     unsigned long getSystemTime();
-    void packetCreator(char *_buf, QByteArray array, int size);    
+    void packetCreator(char *_buf, QByteArray array, int size);
+
 
 signals:
     void error(QTcpSocket::SocketError socketError);
