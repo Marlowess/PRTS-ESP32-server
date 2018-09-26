@@ -9,6 +9,8 @@
 #include "serverthread.h"
 #include <vector>
 #include <mutex>
+#include "utilities.h"
+#include <string.h>
 
 class Server : public QTcpServer{
     Q_OBJECT

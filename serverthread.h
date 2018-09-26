@@ -15,7 +15,6 @@
 #include <condition_variable>
 #include <mutex>
 #include <vector>
-#include "utilities.h"
 
 class ServerThread : public QThread{
 

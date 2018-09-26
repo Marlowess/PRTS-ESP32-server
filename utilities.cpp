@@ -31,7 +31,7 @@ std::string hashFunction(std::string str){
         data << tokens.at(i);
 
     std::stringstream ss;
-    ss << myHash(data.str()) << "\r\n";
+    ss << myHash(data.str());
     std::string st = ss.str();
     return st;
 }

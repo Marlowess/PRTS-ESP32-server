@@ -65,7 +65,7 @@ bool Server::allBoardSyncro(){
 /** Invoked when a new connection is available **/
 void Server::incomingConnection(qintptr socketDescriptor){
     qDebug("New Connection!");
-    emit newConnect();    
+    emit newConnect();
 
     ServerThread *thread = new ServerThread(socketDescriptor, this, arrayMutex, packetsArray);
     connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
@@ -75,7 +75,7 @@ void Server::incomingConnection(qintptr socketDescriptor){
     connect(this, &Server::boardReadySignalFather, thread, &ServerThread::boardReadySlotChild);
 
     newThreadRecord();
-    thread->start();    
+    thread->start();
     //this->active_threads += 1; // incremento il conteggio dei thread figli
 
 }
@@ -88,8 +88,24 @@ void Server::threadFinished(){
         // dei pacchetti. In questa fase di attesa il server può svolgere i vari controlli sui pacchetti, evitando
         // quindi di farlo durante lo scambio di dati, quando il carico di lavoro è già alto
         qDebug() << "All thread have finished" << endl;
-        for(int i = 0; i < packetsArray->size(); i++)
+        for(int i = 0; i < packetsArray->size(); i++){
             qDebug() << packetsArray->at(i).c_str() << endl;
+            std::vector<std::string> v = split(packetsArray->at(i), ',');
+            std::string pHash = v.at(v.size() - 1); // hash received by board
+            qDebug() << "Hash" << pHash.c_str() << endl;
+
+            std::size_t found = packetsArray->at(i).find(pHash);
+            if (found != std::string::npos){
+                qDebug() << "Hash checking OK: they're the same string" << endl;
+
+                // INSERIRE QUI LA CHIAMATA A FUNZIONE PER INSERIRE IL PACCHETTO NEL DB
+            }
+            else
+                qDebug() << "Hash checking FAILED: they're not the same string" << endl;
+
+        }
+
+        // Alla fine svuoto il vector per ricevere i prossimi pacchetti
         packetsArray->clear();
     }
 }
