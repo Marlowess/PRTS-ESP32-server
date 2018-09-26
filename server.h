@@ -3,9 +3,12 @@
 #include <QTcpServer>
 #include <QMainWindow>
 #include <QtNetwork>
+#include <QDataStream>
 #include <chrono>
 #include <arpa/inet.h>
 #include "serverthread.h"
+#include <vector>
+#include <mutex>
 
 class Server : public QTcpServer{
     Q_OBJECT
@@ -19,7 +22,10 @@ public:
     void newThreadRecord();
     unsigned long getSystemTime();
     bool allBoardSyncro();
-    ~Server(){}
+    ~Server(){
+        delete arrayMutex;
+        delete packetsArray;
+    }
 
 protected:
     void incomingConnection(qintptr socketDescriptor) override;
@@ -29,6 +35,12 @@ private:
     int number_of_hosts; // number of working boards, setted by user throught GUI or config. file
     int active_threads;
     int syncronizedBoards;
+
+    /* The array will contain packet received by listening thread. The mutex is used to write
+       into vector in thread-safe way.
+    */
+    std::vector<std::string> *packetsArray;
+    std::mutex *arrayMutex;
 
 
     // Mettere tra gli attributi anche uno shared pointer incapsulante un oggetto che ingloba una lista/mappa

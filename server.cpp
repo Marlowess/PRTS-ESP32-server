@@ -1,7 +1,10 @@
 #include "server.h"
 
 /** Constructor **/
-Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){}
+Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){
+    arrayMutex = new std::mutex();
+    packetsArray = new std::vector<std::string>();
+}
 
 /** Sets server port **/
 void Server::setPort(int port){
@@ -64,7 +67,7 @@ void Server::incomingConnection(qintptr socketDescriptor){
     qDebug("New Connection!");
     emit newConnect();    
 
-    ServerThread *thread = new ServerThread(socketDescriptor, this);
+    ServerThread *thread = new ServerThread(socketDescriptor, this, arrayMutex, packetsArray);
     connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
     connect(thread, &ServerThread::finished, this, &Server::threadFinished);
 
@@ -73,7 +76,7 @@ void Server::incomingConnection(qintptr socketDescriptor){
 
     newThreadRecord();
     thread->start();    
-    this->active_threads += 1; // incremento il conteggio dei thread figli
+    //this->active_threads += 1; // incremento il conteggio dei thread figli
 
 }
 
@@ -84,6 +87,10 @@ void Server::threadFinished(){
         // Quando il numero di thread scende a zero significa che tutte le board hanno iniziato la fase di cattura
         // dei pacchetti. In questa fase di attesa il server può svolgere i vari controlli sui pacchetti, evitando
         // quindi di farlo durante lo scambio di dati, quando il carico di lavoro è già alto
+        qDebug() << "All thread have finished" << endl;
+        for(int i = 0; i < packetsArray->size(); i++)
+            qDebug() << packetsArray->at(i).c_str() << endl;
+        packetsArray->clear();
     }
 }
 

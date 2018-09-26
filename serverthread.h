@@ -22,7 +22,7 @@ class ServerThread : public QThread{
     Q_OBJECT
 
 public:
-    ServerThread(int socketDescriptor, QObject *parent);
+    ServerThread(int socketDescriptor, QObject *parent, std::mutex *parentMutex, std::vector<std::string> *v);
     ~ServerThread(){}
     void run() override;
     bool sendData(QByteArray data);
@@ -51,6 +51,10 @@ private:
     std::condition_variable cv;
     std::mutex m;
     bool flag; // used to avoid spurius notifications on condition variable
+
+    std::vector<std::string> *array; // array where to put packets
+    std::mutex *parent_mutex;
+
 };
 
 #endif // SERVERTHREAD_H

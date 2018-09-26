@@ -1,7 +1,9 @@
 #include "serverthread.h"
 
-ServerThread::ServerThread(int socketDescriptor, QObject *parent)
+ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::mutex *m, std::vector<std::string> *v)
     :QThread(parent), socketDescriptor(socketDescriptor), flag(false){
+    array = v;
+    this->parent_mutex = m;
 }
 
 void ServerThread::run(){    
@@ -91,8 +93,11 @@ void ServerThread::run(){
             packetCreator(_buf, dataBuffer, size);
 
             /* TODO Implementare una nuova funzione di hash standard, come MD5 */
-            qDebug() << "Hash string: " << hashFunction(std::string(_buf)).c_str();
-            qDebug() << "Pacchetto: " << _buf << endl;
+            //qDebug() << "Hash string: " << hashFunction(std::string(_buf)).c_str();
+            qDebug() << "Packet received" << endl;
+            m.lock();
+            array->push_back(std::string(_buf));
+            m.unlock();
         }
     }
 

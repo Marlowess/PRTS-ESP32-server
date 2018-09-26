@@ -10,6 +10,7 @@
 
 std::vector<std::string> split(const std::string& s, char delimiter);
 std::string hashFunction(std::string str);
+std::string myHash( const std::string &key);
 
 
 
