@@ -6,78 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
-    <height>469</height>
+    <width>919</width>
+    <height>484</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QChartView" name="graphicsView">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>50</y>
-      <width>111</width>
-      <height>25</height>
+      <x>10</x>
+      <y>10</y>
+      <width>641</width>
+      <height>401</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>30</y>
-      <width>321</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Inserisci il numero di porta di ascolto del server</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="connectButton">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>80</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(78, 154, 6);
-color: rgb(0, 0, 0);</string>
-    </property>
-    <property name="text">
-     <string>CONNETTI</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkConn">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>120</y>
-      <width>151</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Nuova connessione</string>
-    </property>
-   </widget>
-   <widget class="Line" name="line">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>150</y>
-      <width>211</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
   </widget>
@@ -86,7 +30,7 @@ color: rgb(0, 0, 0);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>867</width>
+     <width>919</width>
      <height>22</height>
     </rect>
    </property>
@@ -114,6 +58,13 @@ color: rgb(0, 0, 0);</string>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>QtCharts</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

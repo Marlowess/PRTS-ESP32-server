@@ -1,0 +1,8 @@
+##CONFIGURATION FILE
+
+#SERVER CONFIGURATIONS
+port=1026
+time_before_connection_fails=3000
+
+#CLIENT CONFIGURATIONS
+number_of_boards=1

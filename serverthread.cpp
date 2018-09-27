@@ -6,6 +6,7 @@ ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::mutex *m,
     this->parent_mutex = m;
 }
 
+/** When thread starts, this method is invoked **/
 void ServerThread::run(){    
     QTcpSocket tcpSocket;
     if (!tcpSocket.setSocketDescriptor(socketDescriptor)) {

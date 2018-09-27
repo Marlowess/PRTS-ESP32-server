@@ -80,6 +80,10 @@ void Server::incomingConnection(qintptr socketDescriptor){
 
 }
 
+
+/** This method is invoked when a sub-thread ends. If the number of threads becomes zero
+ *  means that all boards have finished to exchange data with server.
+**/
 void Server::threadFinished(){
     qDebug("Thread finished\n");
     this->active_threads -= 1;
@@ -109,7 +113,3 @@ void Server::threadFinished(){
         packetsArray->clear();
     }
 }
-
-
-
-

@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 std::vector<std::string> split(const std::string& s, char delimiter);
 std::string hashFunction(std::string str);

@@ -2,7 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDataStream>
+#include <QDesktopWidget>
+#include <QFrame>
 #include "server.h"
+#include "chartview.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,8 +21,8 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_connectButton_clicked();
-    void showConnectionStatus();
+//    void on_connectButton_clicked();
+//    void showConnectionStatus();
 
 private:
     Ui::MainWindow *ui;
