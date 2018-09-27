@@ -37,13 +37,13 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-class ChartView : public QChartView
-{
+class ChartView : public QChartView{
     Q_OBJECT
 
 public:
     ChartView(QWidget *parent = 0);
     ~ChartView();
+    void clearDevices();
 
 private Q_SLOTS:
     void handleClickedPoint(const QPointF &point);

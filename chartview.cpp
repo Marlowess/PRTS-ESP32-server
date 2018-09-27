@@ -6,33 +6,36 @@ QT_CHARTS_USE_NAMESPACE
 
 ChartView::ChartView(QWidget *parent)
     : QChartView(new QChart(), parent),
-      m_scatter(0),
-      m_scatter2(0)
-{
+      m_scatter(nullptr),
+      m_scatter2(nullptr){
     setRenderHint(QPainter::Antialiasing);
 
-    chart()->setTitle("Click to interact with scatter points");
+    chart()->setTitle("Devices radar");
 
     m_scatter = new QScatterSeries();
-    m_scatter->setName("scatter1");
-    for (qreal x(0.5); x <= 4.0; x += 0.5) {
-        for (qreal y(0.5); y <= 4.0; y += 0.5)
+    m_scatter->setName("Devices");
+    for (qreal x(1.0); x <= 10.0; x += 1.0) {
+        for (qreal y(1.0); y <= 10.0; y += 1.0)
             *m_scatter << QPointF(x, y);
     }
     m_scatter2 = new QScatterSeries();
-    m_scatter2->setName("scatter2");
+    m_scatter2->setName("Boards");
 
     chart()->addSeries(m_scatter2);
     chart()->addSeries(m_scatter);
     chart()->createDefaultAxes();
-    chart()->axisX()->setRange(0, 4.5);
-    chart()->axisY()->setRange(0, 4.5);
+    chart()->axisX()->setRange(0, 10.0);
+    chart()->axisY()->setRange(0, 10.0);
+
+
 
     connect(m_scatter, &QScatterSeries::clicked, this, &ChartView::handleClickedPoint);
 }
 
-ChartView::~ChartView()
-{
+ChartView::~ChartView(){}
+
+void ChartView::clearDevices(){
+    m_scatter->clear();
 }
 
 void ChartView::handleClickedPoint(const QPointF &point)

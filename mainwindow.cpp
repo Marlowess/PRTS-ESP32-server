@@ -8,15 +8,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);    
 
     QDesktopWidget dw;
-    int x=dw.width()*0.75;
-    int y=dw.height()*0.75;
+    int x=dw.width()*0.9;
+    int y=dw.height()*0.9;
     setFixedSize(x,y);
 
     ChartView chartView(this);
     ui->graphicsView->setChart(chartView.chart());
-    chartView.chart()->setTitle("Titolo modificato");
-
-
 
     server = new Server();
 }
@@ -34,3 +31,7 @@ MainWindow::~MainWindow(){
 //void MainWindow::showConnectionStatus(){
 //    ui->checkConn->setChecked(true);
 //}
+
+void MainWindow::on_pushButton_clicked(){
+    ui->graphicsView->chart()->removeAllSeries();
+}
