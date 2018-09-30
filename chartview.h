@@ -44,9 +44,12 @@ public:
     ChartView(QWidget *parent = 0);
     ~ChartView();
     void clearDevices();
+    void appendBoard(QPointF point);
+    void appendCapture(QPointF point);
+    void setBoardSeries(std::vector<QPointF>);
 
 private Q_SLOTS:
-    void handleClickedPoint(const QPointF &point);
+    //void handleClickedPoint(const QPointF &point);
 
 private:
     QScatterSeries *m_scatter;
