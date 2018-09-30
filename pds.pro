@@ -28,15 +28,13 @@ SOURCES += \
         mainwindow.cpp \
     server.cpp \
     serverthread.cpp \
-    utilities.cpp \
-    chartview.cpp
+    utilities.cpp
 
 HEADERS += \
         mainwindow.h \
     server.h \
     serverthread.h \
-    utilities.h \
-    chartview.h
+    utilities.h
 
 FORMS += \
         mainwindow.ui \

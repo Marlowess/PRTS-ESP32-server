@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+bool online = false; // system ON/OFF
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,12 +9,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QDesktopWidget dw;
-    int x=dw.width()*0.9;
-    int y=dw.height()*0.9;
+    int x = dw.width() * 0.9;
+    int y = dw.height() * 0.9;
     setFixedSize(x,y);
 
     initializeChart();
     ui->frame->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px;}");
+    ui->label_status->setText("DISABLED");
+    ui->label_status->setStyleSheet("QLabel { color : red; }");
 
     //server = new Server();
 }
@@ -22,7 +25,7 @@ void MainWindow::initializeChart(){
     QChart *chart = new QChart();
 
     QScatterSeries *series = new QScatterSeries();
-    series->setName("Boards");
+    series->setName("ESP");
     series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     series->setMarkerSize(10);
     series->setColor(QColor(51,51,255));
@@ -40,7 +43,8 @@ void MainWindow::initializeChart(){
     chart->createDefaultAxes();
     chart->axisX()->setRange(0, 10.0);
     chart->axisY()->setRange(0, 10.0);
-    ui->graphicsView->setChart(chart);
+    ui->graphicsView->setChart(chart);    
+    ui->label_boards->setText("0");
 
 }
 
@@ -50,14 +54,15 @@ MainWindow::~MainWindow(){
 
 void MainWindow::paintBoardsSlot(){
     QScatterSeries *series = new QScatterSeries();
-    series->setName("Boards");
+    series->setName("ESP");
     QChart *chart = ui->graphicsView->chart();
     for(QAbstractSeries *q : chart->series())
-        if(q->name().compare("Boards") == 0){
+        if(q->name().compare("ESP") == 0){
             chart->removeSeries(q);
             delete q;
             break;
         }
+
 
     // First checkBox
     if(ui->check_1->isChecked())
@@ -104,16 +109,59 @@ void MainWindow::paintBoardsSlot(){
 
 void MainWindow::on_check_1_stateChanged(){
     paintBoardsSlot();
+    int nBoards = ui->label_boards->text().toInt();
+    if(ui->check_1->isChecked())
+        nBoards++;
+    else
+        nBoards--;
+    ui->label_boards->setText(QString::number(nBoards));
 }
 
 void MainWindow::on_check_2_stateChanged(){
     paintBoardsSlot();
+    int nBoards = ui->label_boards->text().toInt();
+    if(ui->check_2->isChecked())
+        nBoards++;
+    else
+        nBoards--;
+    ui->label_boards->setText(QString::number(nBoards));
 }
 
 void MainWindow::on_check_3_stateChanged(){
     paintBoardsSlot();
+    int nBoards = ui->label_boards->text().toInt();
+    if(ui->check_3->isChecked())
+        nBoards++;
+    else
+        nBoards--;
+    ui->label_boards->setText(QString::number(nBoards));
 }
 
 void MainWindow::on_check_4_stateChanged(){
     paintBoardsSlot();
+    int nBoards = ui->label_boards->text().toInt();
+    if(ui->check_4->isChecked())
+        nBoards++;
+    else
+        nBoards--;
+    ui->label_boards->setText(QString::number(nBoards));
+}
+
+
+void MainWindow::on_pushButton_clicked(){
+
+    //    server->setPort(ui->lineEdit->text().toInt());
+    //    server->setConnection();
+    //    connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));
+
+    if(online){
+        online = false;
+        ui->label_status->setText("DISABLED");
+        ui->label_status->setStyleSheet("QLabel { color : red; }");
+    }
+    else{
+        online = true;
+        ui->label_status->setText("ENABLED");
+        ui->label_status->setStyleSheet("QLabel { color : green; }");
+    }
 }

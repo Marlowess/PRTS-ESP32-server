@@ -6,7 +6,6 @@
 #include <QDesktopWidget>
 #include <QFrame>
 #include "server.h"
-#include "chartview.h"
 #include <iterator>
 #include <exception>
 #include <QAbstractSeries>
@@ -40,6 +39,8 @@ private slots:
     void on_check_3_stateChanged();
 
     void on_check_4_stateChanged();
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
