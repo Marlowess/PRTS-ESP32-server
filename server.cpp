@@ -1,4 +1,5 @@
 #include "server.h"
+#include "mysqlconn.h"
 
 /** Constructor **/
 Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){
@@ -92,6 +93,14 @@ void Server::threadFinished(){
         // dei pacchetti. In questa fase di attesa il server può svolgere i vari controlli sui pacchetti, evitando
         // quindi di farlo durante lo scambio di dati, quando il carico di lavoro è già alto
         qDebug() << "All thread have finished" << endl;
+
+        MySqlConn conn;
+
+        if(!conn.openConn("probe_requests_db", "root", "password", "localhost"))
+            qDebug() << "Error on creating connection" << endl;
+        else
+            qDebug() << "OK connection" << endl;
+
         for(int i = 0; i < packetsArray->size(); i++){
             qDebug() << packetsArray->at(i).c_str() << endl;
             std::vector<std::string> v = split(packetsArray->at(i), ',');
@@ -103,6 +112,7 @@ void Server::threadFinished(){
                 qDebug() << "Hash checking OK: they're the same string" << endl;
 
                 // INSERIRE QUI LA CHIAMATA A FUNZIONE PER INSERIRE IL PACCHETTO NEL DB
+
             }
             else
                 qDebug() << "Hash checking FAILED: they're not the same string" << endl;

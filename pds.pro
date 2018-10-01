@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network charts
+QT       += core gui network charts sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,13 +28,15 @@ SOURCES += \
         mainwindow.cpp \
     server.cpp \
     serverthread.cpp \
-    utilities.cpp
+    utilities.cpp \
+    mysqlconn.cpp
 
 HEADERS += \
         mainwindow.h \
     server.h \
     serverthread.h \
-    utilities.h
+    utilities.h \
+    mysqlconn.h
 
 FORMS += \
         mainwindow.ui \

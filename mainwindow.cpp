@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
 
-    //server = new Server();
+    server = new Server();
 }
 
 void MainWindow::initializeChart(){
@@ -41,8 +41,8 @@ void MainWindow::initializeChart(){
     chart->addSeries(series);
     chart->addSeries(seriesDevices);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(0, 10.0);
-    chart->axisY()->setRange(0, 10.0);
+    chart->axisX()->setRange(0, 10);
+    chart->axisY()->setRange(0, 10);
     ui->graphicsView->setChart(chart);    
     ui->label_boards->setText("0");
 
@@ -164,4 +164,8 @@ void MainWindow::on_pushButton_clicked(){
         ui->label_status->setText("ENABLED");
         ui->label_status->setStyleSheet("QLabel { color : green; }");
     }
+
+        server->setPort(1026);
+        server->setConnection();
+        //connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));
 }
