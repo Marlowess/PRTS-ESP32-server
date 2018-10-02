@@ -54,11 +54,11 @@ bool MySqlConn::selectAll() {
     if ( db_m.isValid() && db_m.isOpen() ) {
         qDebug() << "== Start Result selectAll ===";
         QSqlQuery query("SELECT * FROM probe_requests;", db_m);
-        int idName = query.record().indexOf("ssid");
+        int idName = query.record().indexOf("mac_address_device");
         while (query.next()) {
             QString name = query.value(idName).toString();
             if (name.isEmpty()) {
-                qDebug() << "=== \"Not Aviable\"";
+                qDebug() << "=== \"Not Available\"";
             } else {
                 qDebug() << "===" << name;
             }
@@ -100,11 +100,15 @@ bool MySqlConn::readFromFile(const QString& fileName) {
     return res;
 }
 
+bool MySqlConn::insertData(const QString &data){
+    insertProbeRequest(data);
+}
+
 
 bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
     bool res = false;
     if (probeRequest.isEmpty()) return false;
-    //mutex.lock();
+    mutex.lock();
 
     if ( db_m.isValid() && db_m.isOpen() ) {
         QStringList list =  probeRequest.split(",");
@@ -123,7 +127,7 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
 
         if (!query.exec()) {
             qDebug() << query.executedQuery();
-            qDebug() << "Couldn't exec query for 'probe_request_tab1' table";
+            qDebug() << "Couldn't exec query for 'probe_request_table' table";
             qDebug() << "Erroro motivation: " << db_m.lastError();
         } else {
             qDebug() << query.executedQuery();
@@ -134,6 +138,6 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
     } else {
         qDebug() << "Query failed";
     }
-    //mutex.unlock();
+    mutex.unlock();
     return res;
 }

@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_status->setStyleSheet("QLabel { color : red; }");
 
     server = new Server();
+    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
 }
 
 void MainWindow::initializeChart(){
@@ -167,5 +168,30 @@ void MainWindow::on_pushButton_clicked(){
 
         server->setPort(1026);
         server->setConnection();
-        //connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));
+        //connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));            
 }
+
+/** This method is invoked each time the server has finished data handling on DB **/
+void MainWindow::printDevicesSlot(){
+    qDebug() << "Ready to print devices on chart" << endl;
+    QScatterSeries *series = new QScatterSeries();
+    series->setName("Devices");
+    QChart *chart = ui->graphicsView->chart();
+    for(QAbstractSeries *q : chart->series())
+        if(q->name().compare("Devices") == 0){
+            chart->removeSeries(q);
+            delete q;
+            break;
+        }
+    series->append(5,5);
+    series->append(4,4);
+    series->append(6,6);
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+    chart->axisX()->setRange(0, 10.0);
+    chart->axisY()->setRange(0, 10.0);
+    ui->graphicsView->setChart(chart);
+}
+
+

@@ -4,7 +4,7 @@
 /** Constructor **/
 Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){
     arrayMutex = new std::mutex();
-    packetsArray = new std::vector<std::string>();
+    packetsArray = new std::vector<std::string>();    
 }
 
 /** Sets server port **/
@@ -87,7 +87,7 @@ void Server::incomingConnection(qintptr socketDescriptor){
 **/
 void Server::threadFinished(){
     qDebug("Thread finished\n");
-    this->active_threads -= 1;
+    active_threads -= 1;
     if(active_threads == 0){
         // Quando il numero di thread scende a zero significa che tutte le board hanno iniziato la fase di cattura
         // dei pacchetti. In questa fase di attesa il server può svolgere i vari controlli sui pacchetti, evitando
@@ -102,16 +102,17 @@ void Server::threadFinished(){
             qDebug() << "OK connection" << endl;
 
         for(int i = 0; i < packetsArray->size(); i++){
-            qDebug() << packetsArray->at(i).c_str() << endl;
+            //qDebug() << packetsArray->at(i).c_str() << endl;
             std::vector<std::string> v = split(packetsArray->at(i), ',');
             std::string pHash = v.at(v.size() - 1); // hash received by board
-            qDebug() << "Hash" << pHash.c_str() << endl;
+            //qDebug() << "Hash" << pHash.c_str() << endl;
 
             std::size_t found = packetsArray->at(i).find(pHash);
             if (found != std::string::npos){
-                qDebug() << "Hash checking OK: they're the same string" << endl;
+                //qDebug() << "Hash checking OK: they're the same string" << endl;
 
                 // INSERIRE QUI LA CHIAMATA A FUNZIONE PER INSERIRE IL PACCHETTO NEL DB
+                conn.insertData(QString(packetsArray->at(i).c_str()));
 
             }
             else
@@ -121,5 +122,11 @@ void Server::threadFinished(){
 
         // Alla fine svuoto il vector per ricevere i prossimi pacchetti
         packetsArray->clear();
+        conn.selectAll();
+
+        // FARE QUI I VARI FILTRAGGI, SCARTANDO I PACCHETTI CHE NON SERVONO
+        // Una volta finito lanciare un segnale alla GUI, che aprirà il DB e disegnerà
+        // i puntini sul grafico
+        emit paintDevicesSignal();
     }
 }

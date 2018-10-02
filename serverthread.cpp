@@ -22,13 +22,13 @@ void ServerThread::run(){
         ds >> size;
         qDebug() << "Size: " << size << endl;
 
-        tcpSocket.waitForReadyRead(-1);
-        QByteArray dataBuffer;
-
         if(size == 0){
             qDebug() << "No data to read" << endl;
             break;
         }
+
+        tcpSocket.waitForReadyRead(-1);
+        QByteArray dataBuffer;       
 
         if(size == 1){
             dataBuffer = tcpSocket.read(1);
@@ -127,3 +127,6 @@ void ServerThread::packetCreator(char *_buf, QByteArray array, int size){
     }
     _buf[j] = '\0';
 }
+
+
+

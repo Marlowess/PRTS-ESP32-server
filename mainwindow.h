@@ -30,6 +30,7 @@ private slots:
 //    void on_connectButton_clicked();
 //    void showConnectionStatus();
     void paintBoardsSlot();
+    void printDevicesSlot();
 
 
     void on_check_1_stateChanged();

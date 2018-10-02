@@ -68,6 +68,7 @@ private slots:
 signals:
     void newConnect();
     void boardReadySignalFather();
+    void paintDevicesSignal();
 
 };
 

@@ -45,6 +45,7 @@ public slots:
         sleep(2);
         cv.notify_one();
     }
+
 private:
     int socketDescriptor;
     std::condition_variable cv;
