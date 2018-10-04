@@ -2,9 +2,14 @@
 #include "mysqlconn.h"
 
 /** Constructor **/
-Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0){
+Server::Server(QObject *parent) : QTcpServer(parent), active_threads(0), syncronizedBoards(0),boardsProcessDone(0){
     arrayMutex = new std::mutex();
-    packetsArray = new std::vector<std::string>();    
+    packetsArray = new std::vector<std::string>();
+    this->cv = std::make_shared<std::condition_variable>();
+    this->cv_mutex = std::make_shared<std::mutex>();
+    firstLaunch = true;
+    spuriusFlag = std::make_shared<bool>(false);
+
 }
 
 /** Sets server port **/
@@ -40,6 +45,10 @@ void Server::setConnection(){
 
 void Server::setNumberOfHosts(int n){
     this->number_of_hosts = n;
+    this->syncronizedBoards = number_of_hosts;
+    std::stringstream stream;
+    stream << "Number of hosts: " << number_of_hosts;
+    qDebug() << stream.str().c_str() << endl;
 }
 
 int Server::getNumberOfHosts(int){
@@ -68,17 +77,23 @@ void Server::incomingConnection(qintptr socketDescriptor){
     qDebug("New Connection!");
     emit newConnect();
 
-    ServerThread *thread = new ServerThread(socketDescriptor, this, arrayMutex, packetsArray);
+    ServerThread *thread = new ServerThread(socketDescriptor, this, arrayMutex, packetsArray,
+                                            this->cv, this->cv_mutex, spuriusFlag);
     connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
     connect(thread, &ServerThread::finished, this, &Server::threadFinished);
 
-    connect(thread, &ServerThread::boardReadySignalChild, this, &Server::boardReadySlotFather);
-    connect(this, &Server::boardReadySignalFather, thread, &ServerThread::boardReadySlotChild);
+//    connect(thread, &ServerThread::boardReadySignalChild, this, &Server::boardReadySlotFather);
+//    connect(this, &Server::boardReadySignalFather, thread, &ServerThread::boardReadySlotChild);
+
+    // Quando un thread figlio termina, il thread padre incrementa il contatore delle board che hanno finito
+    connect(thread, &ServerThread::processDoneSignal, this, &Server::incrementBoardsDone);
+
+    // Quando il socket del thread figlio si chiude, il padre riceve il segnale
+    connect(thread, &ServerThread::boardDisconnected, this, &Server::decrementingBoardsSlot);
 
     newThreadRecord();
-    thread->start();
+    thread->start();      
     //this->active_threads += 1; // incremento il conteggio dei thread figli
-
 }
 
 
@@ -88,10 +103,7 @@ void Server::incomingConnection(qintptr socketDescriptor){
 void Server::threadFinished(){
     qDebug("Thread finished\n");
     active_threads -= 1;
-    if(active_threads == 0){
-        // Quando il numero di thread scende a zero significa che tutte le board hanno iniziato la fase di cattura
-        // dei pacchetti. In questa fase di attesa il server può svolgere i vari controlli sui pacchetti, evitando
-        // quindi di farlo durante lo scambio di dati, quando il carico di lavoro è già alto
+    if(syncronizedBoards <= boardsProcessDone){
         qDebug() << "All thread have finished" << endl;
 
         MySqlConn conn;
@@ -128,5 +140,19 @@ void Server::threadFinished(){
         // Una volta finito lanciare un segnale alla GUI, che aprirà il DB e disegnerà
         // i puntini sul grafico
         emit paintDevicesSignal();
+
+        // In questo punto devo aggiornare i parametri della cattura che sta per iniziare.
+        // Devo aggiornare il numero di board attese per la prossima cattura, azzerare il numero
+        // di board che hanno completato il processo
+        this->syncronizedBoards = number_of_hosts; // riporto il numero di board al valore atteso iniziale
+        boardsProcessDone = 0;
+
+        //sleep(5);
+        sleep(3);
+        std::lock_guard<std::mutex> lg(*(cv_mutex));
+        (*spuriusFlag) = true; // flag delle notifiche spurie disattivato
+        qDebug() << "notifyAll now!" << endl;
+        (*cv).notify_all();
+        (*spuriusFlag) = false; // flag delle notifiche spurie riattivato
     }
 }

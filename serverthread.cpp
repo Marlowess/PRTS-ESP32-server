@@ -1,18 +1,27 @@
 #include "serverthread.h"
 
-ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::mutex *m, std::vector<std::string> *v)
-    :QThread(parent), socketDescriptor(socketDescriptor), flag(false){
-    array = v;
-    this->parent_mutex = m;
+ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::mutex *m, std::vector<std::string> *v,
+                           std::shared_ptr<std::condition_variable> cv, std::shared_ptr<std::mutex> cv_mutex,
+                           std::shared_ptr<bool> spuriusFlag)
+    :QThread(parent), socketDescriptor(socketDescriptor){
+    vector = v;
+    this->vector_mutex = m;
+    this->cv_mutex = cv_mutex;
+    this->cv = cv;
+    this->spuriusFlag = spuriusFlag;
 }
 
 /** When thread starts, this method is invoked **/
 void ServerThread::run(){    
     QTcpSocket tcpSocket;
+
     if (!tcpSocket.setSocketDescriptor(socketDescriptor)) {
         emit error(tcpSocket.error());
         return;
     }
+
+    // Se questo socket si disconnette per qualche motivo, viene invocato l'apposito slot
+    connect(&tcpSocket, &QTcpSocket::disconnected, this, &ServerThread::disconnectionSlot);
 
     while(tcpSocket.state() == QTcpSocket::ConnectedState){
         tcpSocket.waitForReadyRead(-1);
@@ -24,11 +33,14 @@ void ServerThread::run(){
 
         if(size == 0){
             qDebug() << "No data to read" << endl;
+            firstLap = false;
             break;
         }
 
-        tcpSocket.waitForReadyRead(-1);
-        QByteArray dataBuffer;       
+        if(!tcpSocket.waitForReadyRead(4000))
+            break;
+
+        QByteArray dataBuffer;
 
         if(size == 1){
             dataBuffer = tcpSocket.read(1);
@@ -39,11 +51,25 @@ void ServerThread::run(){
 
             // Dati di dimensione 1 non possono che corrispondere alla richiesta di sincronizzazione orologio
             // da parte delle board. Questo comando viene inviato in due diverse situazioni:
-                // 1) la board viene attivata per la prima volta, e dunque ha bisogno di settare il proprio
-                // clock interno prima di cominciare la cattura
-                // 2) dopo l'invio dei pacchetti la board richiede l'orologio prima di effettuare una nuova cattura
+            // 1) la board viene attivata per la prima volta, e dunque ha bisogno di settare il proprio
+            // clock interno prima di cominciare la cattura
+            // 2) dopo l'invio dei pacchetti la board richiede l'orologio prima di effettuare una nuova cattura
             if(dataBuffer.toStdString().compare("|") == 0){
                 qDebug() << "I'm here" << endl;
+
+                // La board richiede il timestamp. La blocco fino a nuovo ordine
+                // wait su condition variable
+                std::unique_lock<std::mutex> ul(*(cv_mutex));
+
+                emit processDoneSignal();
+                // wait su condition variable. In fase di sblocco si controlla l'eventuale risveglio spurio,
+                // e nel caso si torna in fase di attesa su cv
+                (*cv).wait(ul, [&](){
+                    qDebug() << (*spuriusFlag) << endl;
+                    return *(spuriusFlag);
+                });
+
+                // Arrivo qui quando il padre sveglia tutti quelli in attesa su condition variable
                 unsigned long time = this->getSystemTime();
                 qDebug() << "Time: " << time << endl;
                 QByteArray writingBuffer(std::to_string(time).c_str());
@@ -51,24 +77,8 @@ void ServerThread::run(){
                 if(result == -1 || result < writingBuffer.size()){
                     qDebug() << "Error on sending timestamp" << endl;
                     break;
-                }          
+                }
 
-                // questo signal è collegato allo slot del thread padre, il quale decrementa
-                // un contatore (numero di board sincronizzate). Quando quel valore raggiunge lo zero
-                // il thread padre manda un SIGNAL a tutti i thread figli, i quali manderanno il messaggio
-                // alle board affinchè esse inizino la fase di cattura dei pacchetti
-                 emit boardReadySignalChild();
-
-                // wait su condition variable
-                std::unique_lock<std::mutex> ul(m);
-
-                // wait su condition variable. In fase di sblocco si controlla l'eventuale risveglio spurio,
-                // e nel caso si torna in fase di attesa su cv
-                cv.wait(ul, [&](){
-                    return flag;
-                });
-
-                qDebug() << "Woke up from condition variable lock" << endl;
                 result = tcpSocket.write(QByteArray("GO"));
                 if(result == -1 || result < 2){
                     qDebug() << "Error on sending start signal" << endl;
@@ -85,6 +95,7 @@ void ServerThread::run(){
         // sono sincronizzate (avviene il risveglio dei thread bloccati sulla condition variable) oppure subito
         // dopo.
         else{
+            firstLap = false;
             dataBuffer = tcpSocket.read(size);
             if(dataBuffer.size() < size){
                 qDebug() << "Error on receiving packet" << endl;
@@ -96,15 +107,18 @@ void ServerThread::run(){
             /* TODO Implementare una nuova funzione di hash standard, come MD5 */
             //qDebug() << "Hash string: " << hashFunction(std::string(_buf)).c_str();
             qDebug() << "Packet received" << endl;
-            m.lock();
-            array->push_back(std::string(_buf));
-            m.unlock();
+            (*vector_mutex).lock();
+            vector->push_back(std::string(_buf));
+            (*vector_mutex).unlock();
+
+            emit processDoneSignal(); // this thread has finished to push data into vector
         }
     }
 
     // Arrivati qui la board ha già effettuato la disconnessione
     tcpSocket.disconnectFromHost();
     //tcpSocket.waitForDisconnected();
+
 }
 
 /** Returns the system time **/

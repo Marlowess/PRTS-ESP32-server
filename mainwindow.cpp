@@ -44,7 +44,7 @@ void MainWindow::initializeChart(){
     chart->createDefaultAxes();
     chart->axisX()->setRange(0, 10);
     chart->axisY()->setRange(0, 10);
-    ui->graphicsView->setChart(chart);    
+    ui->graphicsView->setChart(chart);
     ui->label_boards->setText("0");
 
 }
@@ -116,6 +116,7 @@ void MainWindow::on_check_1_stateChanged(){
     else
         nBoards--;
     ui->label_boards->setText(QString::number(nBoards));
+    server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
 void MainWindow::on_check_2_stateChanged(){
@@ -126,6 +127,7 @@ void MainWindow::on_check_2_stateChanged(){
     else
         nBoards--;
     ui->label_boards->setText(QString::number(nBoards));
+    server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
 void MainWindow::on_check_3_stateChanged(){
@@ -136,6 +138,7 @@ void MainWindow::on_check_3_stateChanged(){
     else
         nBoards--;
     ui->label_boards->setText(QString::number(nBoards));
+    server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
 void MainWindow::on_check_4_stateChanged(){
@@ -146,6 +149,7 @@ void MainWindow::on_check_4_stateChanged(){
     else
         nBoards--;
     ui->label_boards->setText(QString::number(nBoards));
+    server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
 
@@ -166,9 +170,9 @@ void MainWindow::on_pushButton_clicked(){
         ui->label_status->setStyleSheet("QLabel { color : green; }");
     }
 
-        server->setPort(1026);
-        server->setConnection();
-        //connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));            
+    server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
+    server->setPort(1026); // setto la porta
+    server->setConnection(); // faccio partire la connessione
 }
 
 /** This method is invoked each time the server has finished data handling on DB **/
