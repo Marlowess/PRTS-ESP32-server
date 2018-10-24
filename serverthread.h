@@ -23,7 +23,7 @@ class ServerThread : public QThread{
 public:
     ServerThread(int socketDescriptor, QObject *parent, std::mutex *parentMutex, std::vector<std::string> *v,
                  std::shared_ptr<std::condition_variable> cv, std::shared_ptr<std::mutex> cv_mutex,
-                 std::shared_ptr<bool> spuriusFlag);
+                 std::shared_ptr<bool> spuriusFlag, std::shared_ptr<bool> isSyncroTime);
     ~ServerThread(){}
     void run() override;
     bool sendData(QByteArray data);
@@ -70,6 +70,7 @@ private:
     bool firstLap = true; // indica se
     std::shared_ptr<bool> spuriusFlag;
     std::shared_ptr<bool> firstLaunch;
+    std::shared_ptr<bool> isSyncroTime;
 
 };
 

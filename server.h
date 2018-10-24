@@ -35,12 +35,10 @@ protected:
 
 private:
     int port; // server port listening on
-    int number_of_hosts; // number of working boards, setted by user throught GUI or config. file
-    int active_threads; // represents how many threads are active
-    int syncronizedBoards; // represents how many boards server waiting for storing data
-    int boardsProcessDone; // represents how many boards have talked with server already
+    int scheduledBoards;
     std::shared_ptr<bool> spuriusFlag;
     bool firstLaunch;
+    std::shared_ptr<bool> isSyncroTime;
 
     /* The array will contain packet received by listening thread. The mutex is used to write
        into vector in thread-safe way.
@@ -52,31 +50,13 @@ private:
 
 private slots:
     void threadFinished();
-
-    void decrementingBoardsSlot(){
-        syncronizedBoards--;
-    }
-
-    void incrementBoardsDone(){
-        if(firstLaunch){
-            if(active_threads == number_of_hosts){
-                qDebug() << "I'm in it!" << endl;
-                sleep(3);
-                std::lock_guard<std::mutex> lg(*(cv_mutex));
-                (*spuriusFlag) = true; // flag delle notifiche spurie disattivato
-                //sleep(5);
-                (*cv).notify_all();
-                (*spuriusFlag) = false; // flag delle notifiche spurie riattivato
-                firstLaunch = false;
-            }
-        }
-        boardsProcessDone++;
-    }
+    void syncroTimeout();
+    void sniffingTimeout();
 
 signals:
     void newConnect();
     //void boardReadySignalFather();
-    void paintDevicesSignal();
+    void paintDevicesSignal();    
 
 };
 

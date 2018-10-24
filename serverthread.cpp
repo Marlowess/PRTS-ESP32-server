@@ -2,13 +2,14 @@
 
 ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::mutex *m, std::vector<std::string> *v,
                            std::shared_ptr<std::condition_variable> cv, std::shared_ptr<std::mutex> cv_mutex,
-                           std::shared_ptr<bool> spuriusFlag)
+                           std::shared_ptr<bool> spuriusFlag, std::shared_ptr<bool> isSyncroTime)
     :QThread(parent), socketDescriptor(socketDescriptor){
     vector = v;
     this->vector_mutex = m;
     this->cv_mutex = cv_mutex;
     this->cv = cv;
     this->spuriusFlag = spuriusFlag;
+    this->isSyncroTime = isSyncroTime;
 }
 
 /** When thread starts, this method is invoked **/
@@ -55,7 +56,7 @@ void ServerThread::run(){
             // clock interno prima di cominciare la cattura
             // 2) dopo l'invio dei pacchetti la board richiede l'orologio prima di effettuare una nuova cattura
             if(dataBuffer.toStdString().compare("|") == 0){
-                qDebug() << "I'm here" << endl;
+                qDebug() << "I'm here" << endl;              
 
                 // La board richiede il timestamp. La blocco fino a nuovo ordine
                 // wait su condition variable
@@ -95,6 +96,13 @@ void ServerThread::run(){
         // sono sincronizzate (avviene il risveglio dei thread bloccati sulla condition variable) oppure subito
         // dopo.
         else{
+
+            // Chiudo connessione se sono nella fase di richiesta del timestamp
+            if(*(isSyncroTime)){
+                tcpSocket.close();
+                return;
+            }
+
             firstLap = false;
             dataBuffer = tcpSocket.read(size);
             if(dataBuffer.size() < size){
