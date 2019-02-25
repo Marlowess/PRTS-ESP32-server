@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_status->setStyleSheet("QLabel { color : red; }");
 
     server = new Server();
-    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+    //connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
 }
 
 void MainWindow::initializeChart(){

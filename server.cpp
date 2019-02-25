@@ -46,7 +46,7 @@ void Server::setConnection(){
     // Qui metto il timer da 10", che sarà il tempo massimo che le board avranno per richiedere il timestamp
     // connetto lo scadere del timer ad una variabile booleana, la quale controlla cosa il server può accettare
     // in un determinato istante di tempo: richieste di timestamp o pacchetti
-    QTimer::singleShot(5000, this, &Server::syncroTimeout);
+    //QTimer::singleShot(5000, this, &Server::syncroTimeout);
 }
 
 /** This method sets how many boards are expected by server during syncro. mode **/
