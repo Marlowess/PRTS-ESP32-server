@@ -74,11 +74,10 @@ unsigned long Server::getSystemTime(){
 
 /** Invoked when a new connection is available **/
 void Server::incomingConnection(qintptr socketDescriptor){
+    /* The following code is executed each time a new board gets connected to server */
     qDebug("New Connection!");
     emit newConnect();
-
-    ServerThread *thread = new ServerThread(socketDescriptor, this, arrayMutex, packetsArray,
-                                            this->cv, this->cv_mutex, spuriusFlag, isSyncroTime);
+    ServerThread *thread = new ServerThread(socketDescriptor, this);
     connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
     //connect(thread, &ServerThread::finished, this, &Server::threadFinished);
 

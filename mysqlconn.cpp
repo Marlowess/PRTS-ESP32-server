@@ -141,3 +141,7 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
     mutex.unlock();
     return res;
 }
+
+bool MySqlConn::conn_is_open(){
+    return db_m.isOpen();
+}
