@@ -1,0 +1,1 @@
+CALL boilerplate_proc();

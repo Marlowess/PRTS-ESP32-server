@@ -1,16 +1,8 @@
 #include "serverthread.h"
 #include <iostream>
 
-ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::mutex *m, std::vector<std::string> *v,
-                           std::shared_ptr<std::condition_variable> cv, std::shared_ptr<std::mutex> cv_mutex,
-                           std::shared_ptr<bool> spuriusFlag, std::shared_ptr<bool> isSyncroTime)
+ServerThread::ServerThread(int socketDescriptor, QObject *parent)
     :QThread(parent), socketDescriptor(socketDescriptor){
-    vector = v;
-    this->vector_mutex = m;
-    this->cv_mutex = cv_mutex;
-    this->cv = cv;
-    this->spuriusFlag = spuriusFlag;
-    this->isSyncroTime = isSyncroTime;
 }
 
 /** When thread starts, this method is invoked **/
@@ -22,8 +14,14 @@ void ServerThread::run(){
         return;
     }
 
-    // Se questo socket si disconnette per qualche motivo, viene invocato l'apposito slot
+    /* This slot is invoked if the connection gets lost */
     connect(&tcpSocket, &QTcpSocket::disconnected, this, &ServerThread::disconnectionSlot);
+
+    /* A new connection for writing on the DB has to be created. Each thread use its own connection so that
+       the atomicity of the transactions is guaranteed
+       Using a shared pointer it is guaranteed that the pointer will be destroyed when the thread will die */
+    std::shared_ptr<MySqlConn> connection = std::make_shared<MySqlConn>();
+    connection->openConn("probe_requests_db", "root", "password", "localhost");
 
     while(tcpSocket.state() == QTcpSocket::ConnectedState){
         tcpSocket.waitForReadyRead(-1);
@@ -33,58 +31,44 @@ void ServerThread::run(){
         ds >> size;
         qDebug() << "Size: " << size << endl;
 
-        if(size == 0){
-            qDebug() << "No data to read" << endl;
-            firstLap = false;
-            break;
-        }
-
-        if(!tcpSocket.waitForReadyRead(4000))
+        if(!tcpSocket.waitForReadyRead())
             break;
 
-        QByteArray dataBuffer;
-
-        // Se i dati hanno una dimensione maggiore di 1, significa che ci troviamo nella fase di trasmissione
-        // dei dati tra client e server.
-        // TODO: stabilire se il controllo hash debba essere fatto adesso oppure nella successiva fase, quella
-        // in cui il thread padre effettua le analisi mentre le board catturano.
-        // Tip: le analisi e il salvataggio del DB potrebbe essere svolto tra il momento in cui tutte le board
-        // sono sincronizzate (avviene il risveglio dei thread bloccati sulla condition variable) oppure subito
-        // dopo.
+        /* Packet content will be written here */
+        QByteArray dataBuffer;        
 
         dataBuffer = tcpSocket.read(size);
         if(dataBuffer.size() < size){
             qDebug() << "Error on receiving packet" << endl;
             break;
-        }
-        qDebug() << dataBuffer << endl;
+        }        
+
+        /* Conversion from ASCII to QString, according to DB specs */
+        // QString DataAsString = QTextCodec::codecForMib(1015)->toUnicode(dataBuffer);
         char _buf[256];
         packetCreator(_buf, dataBuffer, size);
-        //qDebug() << dataBuffer << endl;
+        qDebug() << _buf << endl;
+
+        /* If connection to DB is not opened I open it
+           I try to open connection until it is established */
+//        while(!connection->conn_is_open()){
+//            // Try until the connection is established
+//            connection->openConn("probe_requests_db", "root", "password", "localhost");
+//        }
+
+        /* Now I insert the packet into the DB */
+        connection->insertData(_buf);
 
         /* TODO Implementare una nuova funzione di hash standard, come MD5 */
         //qDebug() << "Hash string: " << hashFunction(std::string(_buf)).c_str();
         qDebug() << "Packet received" << endl;
-//        (*vector_mutex).lock();
-//        vector->push_back(std::string(_buf));
-//        (*vector_mutex).unlock();
-
-        //emit processDoneSignal(); // this thread has finished to push data into vector
     }
 
-
-    // Arrivati qui la board ha già effettuato la disconnessione
+    /* This section is reached if the board has been disconnected from server */
+    qDebug() << "The error is: " << tcpSocket.errorString() << endl;
     tcpSocket.disconnectFromHost();
     //tcpSocket.waitForDisconnected();
 
-}
-
-/** Returns the system time **/
-unsigned long ServerThread::getSystemTime(){
-    double now = std::chrono::duration_cast<std::chrono::seconds>(
-                std::chrono::system_clock::now().time_since_epoch()).count();
-    unsigned long _now = htonl((unsigned long) now);
-    return _now;
 }
 
 /** Makes the packet structure **/

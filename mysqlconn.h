@@ -14,6 +14,7 @@ public:
     bool selectAll();
     bool readFromFile(const QString& fileName);
     bool insertData(const QString& data);
+    bool conn_is_open();
     ~MySqlConn();
 private:
     bool insertProbeRequest(const QString& probeRequest);
