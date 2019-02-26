@@ -7,8 +7,7 @@
 #include <QFile>
 #include <QTextStream>
 
-MySqlConn::MySqlConn()
-{
+MySqlConn::MySqlConn(){
     qDebug() << "Create MySqlConn Obj";
 }
 
@@ -20,7 +19,7 @@ MySqlConn::~MySqlConn() {
             qDebug() << "removing connection" << db_m.connectionName();
             QSqlDatabase::removeDatabase(db_m.connectionName());
          }
-    }
+    }    
 }
 
 bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QString& password, const QString& hostName) {

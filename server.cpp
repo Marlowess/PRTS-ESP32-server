@@ -2,7 +2,10 @@
 #include "mysqlconn.h"
 
 /** Constructor **/
-Server::Server(QObject *parent) : QTcpServer(parent){}
+Server::Server(QObject *parent) : QTcpServer(parent){
+    connection = std::make_shared<MySqlConn>();
+    connection->openConn("probe_requests_db", "root", "password", "localhost");
+}
 
 /** Sets server port **/
 void Server::setPort(int port){
@@ -62,8 +65,8 @@ unsigned long Server::getSystemTime(){
 void Server::incomingConnection(qintptr socketDescriptor){
     /* The following code is executed each time a new board gets connected to server */
     qDebug("New Connection!");
-    emit newConnect();
-    ServerThread *thread = new ServerThread(socketDescriptor, this);
+    emit newConnect();   
+    ServerThread *thread = new ServerThread(socketDescriptor, this, connection);
     //connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
     //connect(thread, &ServerThread::finished, this, &Server::threadFinished);
     newThreadRecord();

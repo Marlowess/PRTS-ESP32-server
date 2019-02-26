@@ -11,6 +11,7 @@
 #include <mutex>
 #include "utilities.h"
 #include <string.h>
+#include "mysqlconn.h"
 
 class Server : public QTcpServer{
     Q_OBJECT
@@ -33,6 +34,7 @@ protected:
 private:
     int port; // server port listening on
     int scheduledBoards;
+    std::shared_ptr<MySqlConn> connection;
 
 private slots:
     void threadFinished();
