@@ -52,16 +52,17 @@ void ServerThread::run(){
         /* Conversion from ASCII to QString, according to DB specs */
         QString DataAsString = QTextCodec::codecForMib(1015)->toUnicode(dataBuffer);
 
-        /* If connection to DB is not opened I open it */
-        if(connection->conn_is_open() == false){
+        /* If connection to DB is not opened I open it
+           I try to open connection until it is established */
+        while(!connection->conn_is_open()){
             // Try until the connection is established
-            // connection->openConn()
+            connection->openConn("probe_requests_db", "root", "password", "localhost");
         }
 
         /* Now I insert the packet into the DB */
         connection->insertData(DataAsString);
 
-        /* REMOVE BEFORE RELEASE! Used for debugging purposes */
+        /* REMOVE THIS BEFORE RELEASE! Used for debugging purposes */
         char _buf[256];
         packetCreator(_buf, dataBuffer, size);        
 

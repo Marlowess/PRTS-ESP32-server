@@ -25,10 +25,7 @@ public:
     unsigned long getSystemTime();
     bool allBoardSyncro();
 
-    ~Server(){
-        delete arrayMutex;
-        delete packetsArray;
-    }
+    // ~Server(){}
 
 protected:
     void incomingConnection(qintptr socketDescriptor) override;
@@ -36,26 +33,12 @@ protected:
 private:
     int port; // server port listening on
     int scheduledBoards;
-    std::shared_ptr<bool> spuriusFlag;
-    bool firstLaunch;
-    std::shared_ptr<bool> isSyncroTime;
-
-    /* The array will contain packet received by listening thread. The mutex is used to write
-       into vector in thread-safe way.
-    */
-    std::vector<std::string> *packetsArray;
-    std::mutex *arrayMutex;
-    std::shared_ptr<std::condition_variable> cv;
-    std::shared_ptr<std::mutex> cv_mutex;
 
 private slots:
     void threadFinished();
-    void syncroTimeout();
-    void sniffingTimeout();
 
 signals:
     void newConnect();
-    //void boardReadySignalFather();
     void paintDevicesSignal();    
 
 };
