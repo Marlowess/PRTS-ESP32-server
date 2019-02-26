@@ -64,7 +64,7 @@ void Server::incomingConnection(qintptr socketDescriptor){
     qDebug("New Connection!");
     emit newConnect();
     ServerThread *thread = new ServerThread(socketDescriptor, this);
-    connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
+    //connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
     //connect(thread, &ServerThread::finished, this, &Server::threadFinished);
     newThreadRecord();
     thread->start();
@@ -75,15 +75,15 @@ void Server::incomingConnection(qintptr socketDescriptor){
  *  means that all boards have finished to exchange data with server.
 **/
 void Server::threadFinished(){
-    qDebug("Thread finished\n");
-    qDebug() << "All thread have finished" << endl;
+//    qDebug("Thread finished\n");
+//    qDebug() << "All thread have finished" << endl;
 
-    MySqlConn conn;
+//    MySqlConn conn;
 
-    if(!conn.openConn("probe_requests_db", "root", "password", "localhost"))
-        qDebug() << "Error on creating connection" << endl;
-    else
-        qDebug() << "OK connection" << endl;
+//    if(!conn.openConn("probe_requests_db", "root", "password", "localhost"))
+//        qDebug() << "Error on creating connection" << endl;
+//    else
+//        qDebug() << "OK connection" << endl;
 
 //    for(int i = 0; i < packetsArray->size(); i++){
 //        //qDebug() << packetsArray->at(i).c_str() << endl;

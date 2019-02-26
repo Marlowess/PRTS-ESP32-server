@@ -24,9 +24,9 @@ MySqlConn::~MySqlConn() {
 }
 
 bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QString& password, const QString& hostName) {
-    bool ok;
+    bool ok = false;
     //mutex.lock();
-    if ( !db_m.isValid() ) {
+    if (!db_m.isValid()) {
         db_m = QSqlDatabase::addDatabase("QMYSQL", "my-connection");
         db_m.setHostName(hostName);
         db_m.setDatabaseName(dbName);
@@ -109,7 +109,7 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
     bool res = false;
     if (probeRequest.isEmpty()) return false;
     mutex.lock();
-
+    qDebug() << "La stringa che arriva: " << probeRequest << endl;
     if ( db_m.isValid() && db_m.isOpen() ) {
         QStringList list =  probeRequest.split(",");
         //for(int i = 0; i < list.length(); i++) {
@@ -117,18 +117,18 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
         //}
         QSqlQuery query(db_m);
         query.prepare("INSERT INTO probe_requests (mac_address_board, mac_address_device, ssid, timestamp, signal_strength) "
-                                  "VALUES (:mac_board, :mac_device, :ssid, :timestamp, :signal_strength)");
+                                  "VALUES (:mac_board, :mac_device, :ssid, :timestamp, :signal_strength);");
 
         query.bindValue(":mac_board", list.at(0));
         query.bindValue(":mac_device", list.at(1));
         query.bindValue(":ssid", list.at(2));
         query.bindValue(":timestamp", list.at(3));
-        query.bindValue(":signal_strength", list.at(4));
+        query.bindValue(":signal_strength", list.at(4).toInt());
 
         if (!query.exec()) {
             qDebug() << query.executedQuery();
             qDebug() << "Couldn't exec query for 'probe_request_table' table";
-            qDebug() << "Erroro motivation: " << db_m.lastError();
+            qDebug() << "Error motivation: " << db_m.lastError();
         } else {
             qDebug() << query.executedQuery();
             qDebug() << "query executed!";

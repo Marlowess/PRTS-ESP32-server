@@ -21,6 +21,7 @@ void ServerThread::run(){
        the atomicity of the transactions is guaranteed
        Using a shared pointer it is guaranteed that the pointer will be destroyed when the thread will die */
     std::shared_ptr<MySqlConn> connection = std::make_shared<MySqlConn>();
+    connection->openConn("probe_requests_db", "root", "password", "localhost");
 
     while(tcpSocket.state() == QTcpSocket::ConnectedState){
         tcpSocket.waitForReadyRead(-1);
@@ -30,13 +31,7 @@ void ServerThread::run(){
         ds >> size;
         qDebug() << "Size: " << size << endl;
 
-//        if(size == 0){
-//            qDebug() << "No data to read" << endl;
-//            firstLap = false;
-//            break;
-//        }
-
-        if(!tcpSocket.waitForReadyRead(4000))
+        if(!tcpSocket.waitForReadyRead())
             break;
 
         /* Packet content will be written here */
@@ -46,25 +41,23 @@ void ServerThread::run(){
         if(dataBuffer.size() < size){
             qDebug() << "Error on receiving packet" << endl;
             break;
-        }
-        qDebug() << dataBuffer << endl;
+        }        
 
         /* Conversion from ASCII to QString, according to DB specs */
-        QString DataAsString = QTextCodec::codecForMib(1015)->toUnicode(dataBuffer);
+        // QString DataAsString = QTextCodec::codecForMib(1015)->toUnicode(dataBuffer);
+        char _buf[256];
+        packetCreator(_buf, dataBuffer, size);
+        qDebug() << _buf << endl;
 
         /* If connection to DB is not opened I open it
            I try to open connection until it is established */
-        while(!connection->conn_is_open()){
-            // Try until the connection is established
-            connection->openConn("probe_requests_db", "root", "password", "localhost");
-        }
+//        while(!connection->conn_is_open()){
+//            // Try until the connection is established
+//            connection->openConn("probe_requests_db", "root", "password", "localhost");
+//        }
 
         /* Now I insert the packet into the DB */
-        connection->insertData(DataAsString);
-
-        /* REMOVE THIS BEFORE RELEASE! Used for debugging purposes */
-        char _buf[256];
-        packetCreator(_buf, dataBuffer, size);        
+        connection->insertData(_buf);
 
         /* TODO Implementare una nuova funzione di hash standard, come MD5 */
         //qDebug() << "Hash string: " << hashFunction(std::string(_buf)).c_str();
@@ -72,6 +65,7 @@ void ServerThread::run(){
     }
 
     /* This section is reached if the board has been disconnected from server */
+    qDebug() << "The error is: " << tcpSocket.errorString() << endl;
     tcpSocket.disconnectFromHost();
     //tcpSocket.waitForDisconnected();
 

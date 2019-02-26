@@ -1,0 +1,6 @@
+SET @a = '1538495182'
+
+--SELECT pr.mac_address, pr.timestamp
+SELECT count(*)
+FROM probe_requests pr
+WHERE pr.timestamp <> @a;

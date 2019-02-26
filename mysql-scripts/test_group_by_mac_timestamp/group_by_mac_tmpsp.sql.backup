@@ -1,0 +1,8 @@
+SET @atmps1 = '-1';
+SET @atmps1 = '1538495182';
+SET @aboards_no = -1;
+
+SELECT pr.mac_address, pr.timestamp, count(*)
+FROM probe_requests pr
+WHERE pr.timestamp > @tmsp1 AND pr.timestamp < @tmsp2
+GROUP BY pr.mac_address AND pr.timestamp;
