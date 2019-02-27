@@ -23,8 +23,7 @@ class ServerThread : public QThread{
     Q_OBJECT
 
 public:
-    ServerThread(int socketDescriptor, QObject *parent, std::shared_ptr<MySqlConn>);
-    ~ServerThread(){}
+    ServerThread(int socketDescriptor, QObject *parent, std::shared_ptr<MySqlConn>);    
     void run() override;    
     void packetCreator(char *_buf, QByteArray array, int size);
 

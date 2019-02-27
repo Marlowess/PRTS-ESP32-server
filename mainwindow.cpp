@@ -18,8 +18,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
 
-    server = new Server();
+    // server = new Server();
     //connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+    threadGui = new WorkerThreadGui();
+    qRegisterMetaType<std::vector<Position>>("std::vector<Position>");
+    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+    threadGui->start();
 }
 
 void MainWindow::initializeChart(){
@@ -176,8 +180,29 @@ void MainWindow::on_pushButton_clicked(){
 }
 
 /** This method is invoked each time the server has finished data handling on DB **/
-void MainWindow::printDevicesSlot(){
-    qDebug() << "Ready to print devices on chart" << endl;
+//void MainWindow::printDevicesSlot(std::vector<Position> vector){
+//   // qDebug() << "Ready to print devices on chart" << endl;
+//    QScatterSeries *series = new QScatterSeries();
+//    series->setName("Devices");
+//    QChart *chart = ui->graphicsView->chart();
+//    for(QAbstractSeries *q : chart->series())
+//        if(q->name().compare("Devices") == 0){
+//            chart->removeSeries(q);
+//            delete q;
+//            break;
+//        }
+//    series->append(x,y);
+////    series->append(4,4);
+////    series->append(6,6);
+//    chart->addSeries(series);
+//    chart->createDefaultAxes();
+//    chart->axisX()->setRange(0, 10.0);
+//    chart->axisY()->setRange(0, 10.0);
+//    ui->graphicsView->setChart(chart);
+//}
+
+void MainWindow::printDevicesSlot(std::vector<Position> vec){
+   // qDebug() << "Ready to print devices on chart" << endl;
     QScatterSeries *series = new QScatterSeries();
     series->setName("Devices");
     QChart *chart = ui->graphicsView->chart();
@@ -187,9 +212,9 @@ void MainWindow::printDevicesSlot(){
             delete q;
             break;
         }
-    series->append(5,5);
-    series->append(4,4);
-    series->append(6,6);
+    std::vector<Position>::iterator it;
+    for (it = vec.begin(); it < vec.end(); it++)
+        series->append(it->getX(), it->getY());
 
     chart->addSeries(series);
     chart->createDefaultAxes();

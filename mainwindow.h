@@ -9,6 +9,7 @@
 #include <iterator>
 #include <exception>
 #include <QAbstractSeries>
+#include "workerthreadgui.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,13 +25,13 @@ public:
     ~MainWindow();
 
 signals:
-    void paintBoardsSignal();
+    void paintBoardsSignal(std::vector<Position>);
 
 private slots:
 //    void on_connectButton_clicked();
 //    void showConnectionStatus();
     void paintBoardsSlot();
-    void printDevicesSlot();
+    void printDevicesSlot(std::vector<Position>);
 
 
     void on_check_1_stateChanged();
@@ -46,6 +47,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Server *server;
+    WorkerThreadGui *threadGui;
 };
 
 #endif // MAINWINDOW_H

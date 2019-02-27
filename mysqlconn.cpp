@@ -70,7 +70,6 @@ bool MySqlConn::selectAll() {
 
     //mutex.unlock();
     return res;
-
 }
 
 bool MySqlConn::readFromFile(const QString& fileName) {
@@ -100,7 +99,7 @@ bool MySqlConn::readFromFile(const QString& fileName) {
 }
 
 bool MySqlConn::insertData(const QString &data){
-    insertProbeRequest(data);
+    return insertProbeRequest(data);
 }
 
 
@@ -108,7 +107,7 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
     bool res = false;
     if (probeRequest.isEmpty()) return false;
     mutex.lock();
-    qDebug() << "La stringa che arriva: " << probeRequest << endl;
+    //qDebug() << "La stringa che arriva: " << probeRequest << endl;
     if ( db_m.isValid() && db_m.isOpen() ) {
         QStringList list =  probeRequest.split(",");
         //for(int i = 0; i < list.length(); i++) {

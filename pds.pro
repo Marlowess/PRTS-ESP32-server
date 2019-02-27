@@ -29,14 +29,18 @@ SOURCES += \
     server.cpp \
     serverthread.cpp \
     utilities.cpp \
-    mysqlconn.cpp
+    mysqlconn.cpp \
+    workerthreadgui.cpp \
+    position.cpp
 
 HEADERS += \
         mainwindow.h \
     server.h \
     serverthread.h \
     utilities.h \
-    mysqlconn.h
+    mysqlconn.h \
+    workerthreadgui.h \
+    position.h
 
 FORMS += \
         mainwindow.ui \

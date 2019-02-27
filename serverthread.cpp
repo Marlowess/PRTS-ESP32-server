@@ -20,20 +20,19 @@ void ServerThread::run(){
     /* A new connection for writing on the DB has to be created. Each thread use its own connection so that
        the atomicity of the transactions is guaranteed
        Using a shared pointer it is guaranteed that the pointer will be destroyed when the thread will die */
-    // std::shared_ptr<MySqlConn> connection = std::make_shared<MySqlConn>();
-    // connection->openConn("probe_requests_db", "root", "password", "localhost");
 
     while(tcpSocket.state() == QTcpSocket::ConnectedState){
-        if(!tcpSocket.waitForReadyRead(3000))
+        if(!tcpSocket.waitForReadyRead(-1))
             break;
         QByteArray buffer = tcpSocket.read(sizeof(int));
         QDataStream ds(buffer);
         int size;
         ds >> size;
-        qDebug() << "Size: " << size << endl;
+        //qDebug() << "Size: " << size << endl;
 
-//        if(!tcpSocket.waitForReadyRead(3000))
-//            break;
+        /* Timeout of 10 seconds */
+        if(!tcpSocket.waitForReadyRead(10000))
+            break;
 
         /* Packet content will be written here */
         QByteArray dataBuffer;        
@@ -44,8 +43,7 @@ void ServerThread::run(){
             break;
         }        
 
-        /* Conversion from ASCII to QString, according to DB specs */
-        // QString DataAsString = QTextCodec::codecForMib(1015)->toUnicode(dataBuffer);
+        /* Conversion from ASCII to QString, according to DB specs */        
         char _buf[256];
         packetCreator(_buf, dataBuffer, size);
         qDebug() << _buf << endl;
