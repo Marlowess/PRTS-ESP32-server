@@ -47,19 +47,77 @@ bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QS
     return ok;
 }
 
-bool MySqlConn::selectAll() {
+//bool MySqlConn::selectAll() {
+//    bool res = false;
+//    //mutex.lock();
+//    if ( db_m.isValid() && db_m.isOpen() ) {
+//        qDebug() << "== Start Result selectAll ===";
+//        QSqlQuery query("SELECT * FROM probe_requests;", db_m);
+//        int idName = query.record().indexOf("mac_address_device");
+//        while (query.next()) {
+//            QString name = query.value(idName).toString();
+//            if (name.isEmpty()) {
+//                qDebug() << "=== \"Not Available\"";
+//            } else {
+//                qDebug() << "===" << name;
+//            }
+//        }
+//        qDebug() << "== End Result selectAll ===";
+//        res =  true;
+//    } else {
+//        qDebug() << "Query failed";
+//    }
+
+//    //mutex.unlock();
+//    return res;
+//}
+std::vector<Position> MySqlConn::selectAll() {
     bool res = false;
+    std::vector<Position> vec;
+    QString mac_address_device = "", timestamp = "";
+    int rssi[4] = {0,0,0,0};
+    QString query_string("select mac_address_device, timestamp, signal_strength from probe_requests where timestamp > 1551267156 and timestamp < 1551267156 + 5000 order by timestamp, mac_address_device;");
     //mutex.lock();
     if ( db_m.isValid() && db_m.isOpen() ) {
         qDebug() << "== Start Result selectAll ===";
-        QSqlQuery query("SELECT * FROM probe_requests;", db_m);
+        QSqlQuery query(query_string, db_m);
         int idName = query.record().indexOf("mac_address_device");
+        int idTime = query.record().indexOf("timestamp");
+        int idRssi = query.record().indexOf("signal_strength");
+        int i = 0;
         while (query.next()) {
             QString name = query.value(idName).toString();
-            if (name.isEmpty()) {
-                qDebug() << "=== \"Not Available\"";
-            } else {
-                qDebug() << "===" << name;
+            QString time = query.value(idTime).toString();
+            if(i == 0){
+                mac_address_device = name;
+                timestamp = time;
+                rssi[i] = query.value(idRssi).toInt();
+                qDebug() << name << " " << time << " " << rssi[i] << endl;
+                i++;
+            }
+            else{
+                if(name == mac_address_device && timestamp == time){
+                    rssi[i] = query.value(idRssi).toInt();
+                    i++;
+                }
+                else{
+                    mac_address_device = name;
+                    timestamp = time;
+                    if(i > 1){
+                        float x, y;
+                        CalculatorDistance calc;
+                        calc.getPosition(rssi[0], rssi[1], rssi[2], rssi[3], (double*)&x, (double*)&y);
+                        //printf("x: %f, y: %f\n", x, y);
+                        //printf("%d %d %d %d\n", rssi[0], rssi[1], rssi[2], rssi[3]);
+                        vec.push_back(Position(x,y));
+                        rssi[0] = 0;
+                        rssi[1] = 0;
+                        rssi[2] = 0;
+                        rssi[3] = 0;
+                    }
+                    rssi[0] = query.value(idRssi).toInt();
+                    i = 1;
+                }
             }
         }
         qDebug() << "== End Result selectAll ===";
@@ -69,8 +127,9 @@ bool MySqlConn::selectAll() {
     }
 
     //mutex.unlock();
-    return res;
+    return vec;
 }
+
 
 bool MySqlConn::readFromFile(const QString& fileName) {
     bool res = false;

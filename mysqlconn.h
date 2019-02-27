@@ -5,12 +5,14 @@
 #include <QString>
 #include <QMutex>
 #include <vector>
+#include "position.h"
+#include "calculatordistance.h"
 
 class MySqlConn{
 public:
     MySqlConn();
     bool openConn(const QString& dbName, const QString& usrName, const QString& password, const QString& hostName);
-    bool selectAll();
+    std::vector<Position> selectAll();
     bool readFromFile(const QString& fileName);
     bool insertData(const QString& data);
     bool conn_is_open();

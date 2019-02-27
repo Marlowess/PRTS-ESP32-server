@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
 
-    // server = new Server();
+    //server = new Server();
     //connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui = new WorkerThreadGui();
     qRegisterMetaType<std::vector<Position>>("std::vector<Position>");
