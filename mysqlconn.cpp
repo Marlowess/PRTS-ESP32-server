@@ -76,7 +76,7 @@ std::vector<Position> MySqlConn::selectAll() {
     std::vector<Position> vec;
     QString mac_address_device = "", timestamp = "";
     int rssi[4] = {0,0,0,0};
-    QString query_string("select mac_address_device, timestamp, signal_strength from probe_requests where timestamp > 1551267156 and timestamp < 1551267156 + 5000 order by timestamp, mac_address_device;");
+    QString query_string("select mac_address_device, timestamp, signal_strength from probe_requests where timestamp > 1551366313 and timestamp < 1551366313 + 3000 order by timestamp, mac_address_device;");
     //mutex.lock();
     if ( db_m.isValid() && db_m.isOpen() ) {
         qDebug() << "== Start Result selectAll ===";
@@ -92,7 +92,7 @@ std::vector<Position> MySqlConn::selectAll() {
                 mac_address_device = name;
                 timestamp = time;
                 rssi[i] = query.value(idRssi).toInt();
-                qDebug() << name << " " << time << " " << rssi[i] << endl;
+                //qDebug() << name << " " << time << " " << rssi[i] << endl;
                 i++;
             }
             else{
@@ -104,11 +104,12 @@ std::vector<Position> MySqlConn::selectAll() {
                     mac_address_device = name;
                     timestamp = time;
                     if(i > 1){
-                        float x, y;
+                        double x, y;
                         CalculatorDistance calc;
-                        calc.getPosition(rssi[0], rssi[1], rssi[2], rssi[3], (double*)&x, (double*)&y);
+                        calc.getPosition(rssi[0], rssi[1], rssi[2], rssi[3], &x, &y);
                         //printf("x: %f, y: %f\n", x, y);
                         //printf("%d %d %d %d\n", rssi[0], rssi[1], rssi[2], rssi[3]);
+                        qDebug() << "x: " << x << "  y: " << y << endl;
                         vec.push_back(Position(x,y));
                         rssi[0] = 0;
                         rssi[1] = 0;

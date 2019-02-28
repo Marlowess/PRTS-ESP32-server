@@ -77,6 +77,9 @@
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
             </property>
+            <property name="minimum">
+             <number>-10</number>
+            </property>
             <property name="maximum">
              <number>10</number>
             </property>
@@ -100,6 +103,9 @@
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
+            </property>
+            <property name="minimum">
+             <number>-10</number>
             </property>
             <property name="maximum">
              <number>10</number>
@@ -156,6 +162,9 @@
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
             </property>
+            <property name="minimum">
+             <number>-10</number>
+            </property>
             <property name="maximum">
              <number>10</number>
             </property>
@@ -179,6 +188,9 @@
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
+            </property>
+            <property name="minimum">
+             <number>-10</number>
             </property>
             <property name="maximum">
              <number>10</number>
@@ -232,6 +244,9 @@
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
             </property>
+            <property name="minimum">
+             <number>-10</number>
+            </property>
             <property name="maximum">
              <number>10</number>
             </property>
@@ -255,6 +270,9 @@
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
+            </property>
+            <property name="minimum">
+             <number>-10</number>
             </property>
             <property name="maximum">
              <number>10</number>
@@ -308,6 +326,9 @@
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
             </property>
+            <property name="minimum">
+             <number>-10</number>
+            </property>
             <property name="maximum">
              <number>10</number>
             </property>
@@ -331,6 +352,9 @@
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(255, 255, 255);</string>
+            </property>
+            <property name="minimum">
+             <number>-10</number>
             </property>
             <property name="maximum">
              <number>10</number>

@@ -1,15 +1,15 @@
 #ifndef CALCULATORDISTANCE_H
 #define CALCULATORDISTANCE_H
 
-
-class CalculatorDistance
-{
+#include <iostream>
+#include <QDebug>
+class CalculatorDistance{
 public:
     CalculatorDistance();
     void getPosition(int rssi1, int rssi2, int rssi3, int rssi4, double *x, double *y);
 
 private:
-    int ESP_position[4][2];
+    int ESP_position[4][2] = {{-2, 0},{2, 0},{0, 0},{0, 0}};
 
     short CalculeDistance(float x1, float y1, float x2, float y2);
     double RSSItoDinstance(short RSSI);

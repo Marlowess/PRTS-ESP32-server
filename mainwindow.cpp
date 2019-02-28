@@ -18,8 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
 
-    //server = new Server();
-    //connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+//    server = new Server();
+//connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui = new WorkerThreadGui();
     qRegisterMetaType<std::vector<Position>>("std::vector<Position>");
     connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
@@ -46,8 +46,8 @@ void MainWindow::initializeChart(){
     chart->addSeries(series);
     chart->addSeries(seriesDevices);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(0, 10);
-    chart->axisY()->setRange(0, 10);
+    chart->axisX()->setRange(-10, 10);
+    chart->axisY()->setRange(-10, 10);
     ui->graphicsView->setChart(chart);
     ui->label_boards->setText("0");
 
@@ -96,8 +96,8 @@ void MainWindow::paintBoardsSlot(){
 
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(0, 10.0);
-    chart->axisY()->setRange(0, 10.0);
+    chart->axisX()->setRange(-10, 10.0);
+    chart->axisY()->setRange(-10, 10.0);
     ui->graphicsView->setChart(chart);
 }
 
@@ -218,8 +218,8 @@ void MainWindow::printDevicesSlot(std::vector<Position> vec){
 
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(0, 10.0);
-    chart->axisY()->setRange(0, 10.0);
+    chart->axisX()->setRange(-10, 10.0);
+    chart->axisY()->setRange(-10, 10.0);
     ui->graphicsView->setChart(chart);
 }
 
