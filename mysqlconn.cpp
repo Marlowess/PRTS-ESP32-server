@@ -6,9 +6,19 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <chrono>
 
 MySqlConn::MySqlConn(){
     qDebug() << "Create MySqlConn Obj";
+//    time = std::time(nullptr);
+//        qDebug() << std::asctime(std::localtime(&time))
+//                  << time << " seconds since the Epoch\n";
+
+//    milliseconds_since_epoch = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+//    qDebug() << milliseconds_since_epoch << endl;
+//    unsigned long t = milliseconds_since_epoch - 5000;
+//    qDebug() << t << endl;
+
 }
 
 MySqlConn::~MySqlConn() {
@@ -27,6 +37,31 @@ bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QS
     //mutex.lock();
     if (!db_m.isValid()) {
         db_m = QSqlDatabase::addDatabase("QMYSQL", "my-connection");
+        db_m.setHostName(hostName);
+        db_m.setDatabaseName(dbName);
+        db_m.setUserName(usrName);
+        db_m.setPassword(password);
+
+        qDebug() << "Try Open connection";
+        ok = db_m.open();
+
+        if ( ok ) {
+            qDebug() << "Sql connection is open";
+        }
+        else {
+            qDebug() << "Sql connection is not open";
+        }
+
+    }
+    //mutex.unlock();
+    return ok;
+}
+
+bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QString& password, const QString& hostName, const QString& connName) {
+    bool ok = false;
+    //mutex.lock();
+    if (!db_m.isValid()) {
+        db_m = QSqlDatabase::addDatabase("QMYSQL", connName);
         db_m.setHostName(hostName);
         db_m.setDatabaseName(dbName);
         db_m.setUserName(usrName);
@@ -76,11 +111,28 @@ std::vector<Position> MySqlConn::selectAll() {
     std::vector<Position> vec;
     QString mac_address_device = "", timestamp = "";
     int rssi[4] = {0,0,0,0};
-    QString query_string("select mac_address_device, timestamp, signal_strength from probe_requests where timestamp > 1551366313 and timestamp < 1551366313 + 3000 order by timestamp, mac_address_device;");
+    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+    unsigned long before = now - 3000;
+//    unsigned long now = 1551377733;
+//    unsigned long before = 1551372733;
+    std::string query_(std::string("select p.mac_address_board, p.mac_address_device, p.signal_strength, p.timestamp ")+
+                       std::string("from probe_requests p where (p.mac_address_device, p.timestamp) in (select p2.mac_address_device, max(timestamp) from probe_requests p2 ")+
+                        std::string("where p2.timestamp > ") + std::to_string(before) + std::string(" ")+
+                         std::string("and p2.timestamp < ") + std::to_string(now) + std::string(" ")+
+                         std::string("group by p2.mac_address_device ")+
+                         std::string("order by p2.mac_address_device) ")+
+                           std::string("and p.timestamp > ") + std::to_string(before) + std::string(" ")+
+                               std::string("and p.timestamp < ") + std::to_string(now) + std::string(" ")+
+                       std::string("order by p.mac_address_device, p.timestamp;"));
+    QString query_string(QString::fromStdString(query_));
+    //qDebug() << query_string << endl;
     //mutex.lock();
     if ( db_m.isValid() && db_m.isOpen() ) {
         qDebug() << "== Start Result selectAll ===";
         QSqlQuery query(query_string, db_m);
+        if (!query.exec())
+              qDebug() << query.lastError();
+        //qDebug() << query.executedQuery() << endl;
         int idName = query.record().indexOf("mac_address_device");
         int idTime = query.record().indexOf("timestamp");
         int idRssi = query.record().indexOf("signal_strength");
@@ -109,7 +161,7 @@ std::vector<Position> MySqlConn::selectAll() {
                         calc.getPosition(rssi[0], rssi[1], rssi[2], rssi[3], &x, &y);
                         //printf("x: %f, y: %f\n", x, y);
                         //printf("%d %d %d %d\n", rssi[0], rssi[1], rssi[2], rssi[3]);
-                        qDebug() << "x: " << x << "  y: " << y << endl;
+                        qDebug() << "x: " << x << "  y: " << y << "  Device " << mac_address_device << endl;
                         vec.push_back(Position(x,y));
                         rssi[0] = 0;
                         rssi[1] = 0;

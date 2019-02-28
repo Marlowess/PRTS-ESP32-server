@@ -6,14 +6,14 @@ WorkerThreadGui::WorkerThreadGui(){
 }
 
 void WorkerThreadGui::run() {
-    //bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost", "Thread-Connection-Gui");
-    bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost");
+    bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost", "Thread-Connection-Gui");
+    //bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost");
     if (res == true) {
         while(true) {
             sleep(3);
             emit paintDevicesSignal(this->msconn.selectAll());
             qDebug() << "Go sleeping 3 seconds...";
-            break;
+            // break;
         }
     }
 
