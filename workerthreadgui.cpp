@@ -12,7 +12,7 @@ void WorkerThreadGui::run() {
         while(true) {
             sleep(3);
             emit paintDevicesSignal(this->msconn.selectAll());
-            qDebug() << "Go sleeping 3 seconds...";
+            qDebug() << "Go sleeping 5 seconds...";
             // break;
         }
     }

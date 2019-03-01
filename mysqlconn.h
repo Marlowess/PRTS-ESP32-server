@@ -23,8 +23,8 @@ public:
     ~MySqlConn();
 private:
     bool insertProbeRequest(const QString& probeRequest);
-    void populate_map(std::shared_ptr<QMap<QString, QVector<QString>>>, double, double, QString);
-    void print_map(std::shared_ptr<QMap<QString, QVector<QString>>>);
+    QMap<QString, QVector<QString>> populate_map(QMap<QString, QVector<QString>>, double, double, QString);
+    void print_map(QMap<QString, QVector<QString>>);
     QSqlDatabase db_m;
     QMutex mutex;
     unsigned long milliseconds_since_epoch;

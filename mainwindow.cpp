@@ -1,9 +1,9 @@
 #include "mainwindow.h"
 
-#define X_START -2.5
-#define X_END 2.5
-#define Y_START -2.5
-#define Y_END 2.5
+#define X_START -6
+#define X_END 6
+#define Y_START -6
+#define Y_END 6
 
 bool online = false; // system ON/OFF
 
@@ -44,7 +44,7 @@ void MainWindow::initializeChart(){
 
     QScatterSeries *seriesDevices = new QScatterSeries();
     seriesDevices->setName("Devices");
-    seriesDevices->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+    seriesDevices->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     seriesDevices->setMarkerSize(10);
     seriesDevices->setColor(QColor(255,128,0));
     seriesDevices->setPointLabelsColor(QColor(255,128,0));
@@ -186,7 +186,18 @@ void MainWindow::on_pushButton_clicked(){
 }
 
 void MainWindow::on_point_clicked(QPointF point){
-    ui->mac_addresses->setText("Questo slot funziona!");
+    //ui->mac_addresses->setText("Questo slot funziona!");
+    float x = point.x();
+    float y = point.y();
+    std::string s = std::to_string(x) + "_" + std::to_string(y);
+    QString str(QString::fromStdString(s));
+    QVector<QString> vec;
+    QString mac = "";
+    if(points_map.contains(str)){
+        vec = points_map.value(str);
+        mac = vec.front();
+        ui->mac_addresses->setText(mac);
+    }
 }
 
 /** This method is invoked each time the server has finished data handling on DB **/
@@ -215,6 +226,7 @@ void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
    // qDebug() << "Ready to print devices on chart" << endl;
     this->points_map = map;
     QScatterSeries *series = new QScatterSeries();
+    series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     series->setName("Devices");
     QChart *chart = ui->graphicsView->chart();
     for(QAbstractSeries *q : chart->series())
