@@ -21,6 +21,6 @@ private:
 private slots:
 
 signals:
-    void paintDevicesSignal(std::vector<Position>);
+    void paintDevicesSignal(QMap<QString, QVector<QString>>);
 };
 #endif // WORKERTHREADGUI_H

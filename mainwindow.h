@@ -11,6 +11,8 @@
 #include <QAbstractSeries>
 #include "workerthreadgui.h"
 #include "ui_mainwindow.h"
+#include <QMap>
+#include <QVector>
 
 namespace Ui {
 class MainWindow;
@@ -32,7 +34,7 @@ private slots:
 //    void on_connectButton_clicked();
 //    void showConnectionStatus();
     void paintBoardsSlot();
-    void printDevicesSlot(std::vector<Position>);
+    void printDevicesSlot(QMap<QString, QVector<QString>>);
 
 
     void on_check_1_stateChanged();
@@ -51,6 +53,7 @@ private:
     Ui::MainWindow *ui;
     Server *server;
     WorkerThreadGui *threadGui;
+    QMap<QString, QVector<QString>> points_map;
 };
 
 #endif // MAINWINDOW_H

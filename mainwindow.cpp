@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     server = new Server();
 //    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui = new WorkerThreadGui();
-    qRegisterMetaType<std::vector<Position>>("std::vector<Position>");
+    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
     connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui->start();
 
@@ -211,8 +211,9 @@ void MainWindow::on_point_clicked(QPointF point){
 //    ui->graphicsView->setChart(chart);
 //}
 
-void MainWindow::printDevicesSlot(std::vector<Position> vec){
+void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
    // qDebug() << "Ready to print devices on chart" << endl;
+    this->points_map = map;
     QScatterSeries *series = new QScatterSeries();
     series->setName("Devices");
     QChart *chart = ui->graphicsView->chart();
@@ -222,9 +223,24 @@ void MainWindow::printDevicesSlot(std::vector<Position> vec){
             delete q;
             break;
         }
-    std::vector<Position>::iterator it;
-    for (it = vec.begin(); it < vec.end(); it++)
-        series->append(it->getX(), it->getY());
+//    std::vector<Position>::iterator it;
+//    for (it = vec.begin(); it < vec.end(); it++)
+//        series->append(it->getX(), it->getY());
+
+    QMap<QString, QVector<QString>>::const_iterator i = map.constBegin();
+    while(i != map.constEnd()) {
+        //qDebug() << "Chiave:" << i.key() << " Values:" << i.value() << endl;
+        QString key = i.key();
+        QStringList list = key.split('_');
+        qDebug() << "Chiave:" << list[0] << " Values:" << list[1] << endl;
+        int iX = list[0].indexOf(",", 0);
+        int iY = list[1].indexOf(",", 0);
+        double x = list[0].replace(iX, 1, ".").toDouble();
+        double y = list[1].replace(iY, 1, ".").toDouble();
+        qDebug() << "PosX: " << x << " PosY: " << y << endl;
+        series->append(x, y);
+        i++;
+    }
 
     connect(series, &QScatterSeries::clicked, this, &MainWindow::on_point_clicked);
     chart->addSeries(series);

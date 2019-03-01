@@ -106,9 +106,11 @@ bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QS
 //    //mutex.unlock();
 //    return res;
 //}
-std::vector<Position> MySqlConn::selectAll() {
+QMap<QString, QVector<QString>> MySqlConn::selectAll() {
     bool res = false;
     std::vector<Position> vec;
+    std::shared_ptr<QMap<QString, QVector<QString>>> map;
+    map = std::make_shared<QMap<QString, QVector<QString>>>();
     QString mac_address_device = "", timestamp = "";
     int rssi[4] = {0,0,0,0};
 //    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
@@ -162,7 +164,10 @@ std::vector<Position> MySqlConn::selectAll() {
                         //printf("x: %f, y: %f\n", x, y);
                         //printf("%d %d %d %d\n", rssi[0], rssi[1], rssi[2], rssi[3]);
                         qDebug() << "x: " << x << "  y: " << y << "  Device " << mac_address_device << endl;
-                        vec.push_back(Position(x,y));
+                        //vec.push_back(Position(x,y));
+
+                        populate_map(map, x, y, mac_address_device);
+
                         rssi[0] = 0;
                         rssi[1] = 0;
                         rssi[2] = 0;
@@ -174,13 +179,14 @@ std::vector<Position> MySqlConn::selectAll() {
             }
         }
         qDebug() << "== End Result selectAll ===";
+        print_map(map);
         res =  true;
     } else {
         qDebug() << "Query failed";
     }
 
     //mutex.unlock();
-    return vec;
+    return *map;
 }
 
 
@@ -254,4 +260,29 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
 
 bool MySqlConn::conn_is_open(){
     return db_m.isOpen();
+}
+
+void MySqlConn::populate_map(std::shared_ptr<QMap<QString, QVector<QString>>> map, double x, double y, QString mac){
+    std::string str = std::to_string(x) + "_" + std::to_string(y);
+    QString s(QString::fromStdString(str));
+    if(map->contains(s)){
+        QVector<QString> vec = map->value(s);
+        vec.push_back(mac);
+        map->remove(s);
+        map->insert(s, vec);
+    }
+    else{
+        QVector<QString> vec;
+        vec.push_back(mac);
+        map->insert(s, vec);
+    }
+}
+
+void MySqlConn::print_map(std::shared_ptr<QMap<QString, QVector<QString>>> map){
+    qDebug() << "Map size: " << map->size() << endl;
+    QMap<QString, QVector<QString>>::const_iterator i = map->constBegin();
+    while(i != map->constEnd()) {
+        qDebug() << "Chiave:" << i.key() << " Values:" << i.value() << endl;
+        i++;
+    }
 }
