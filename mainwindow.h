@@ -10,6 +10,7 @@
 #include <exception>
 #include <QAbstractSeries>
 #include "workerthreadgui.h"
+#include "ui_mainwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -43,6 +44,8 @@ private slots:
     void on_check_4_stateChanged();
 
     void on_pushButton_clicked();
+
+    void on_point_clicked(QPointF);
 
 private:
     Ui::MainWindow *ui;

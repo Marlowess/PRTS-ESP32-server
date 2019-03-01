@@ -111,10 +111,10 @@ std::vector<Position> MySqlConn::selectAll() {
     std::vector<Position> vec;
     QString mac_address_device = "", timestamp = "";
     int rssi[4] = {0,0,0,0};
-    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
-    unsigned long before = now - 3000;
-//    unsigned long now = 1551377733;
-//    unsigned long before = 1551372733;
+//    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+//    unsigned long before = now - 3000;
+    unsigned long now = 1551377115	;
+    unsigned long before = 1551372733 - 3000;
     std::string query_(std::string("select p.mac_address_board, p.mac_address_device, p.signal_strength, p.timestamp ")+
                        std::string("from probe_requests p where (p.mac_address_device, p.timestamp) in (select p2.mac_address_device, max(timestamp) from probe_requests p2 ")+
                         std::string("where p2.timestamp > ") + std::to_string(before) + std::string(" ")+

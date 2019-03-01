@@ -6,3 +6,9 @@ time_before_connection_fails=3000
 
 #CLIENT CONFIGURATIONS
 number_of_boards=1
+
+#SIZE OF ROOM
+x_start=-2.5
+x_end=2.5
+y_start=-2.5
+y_end=2.5

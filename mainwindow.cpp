@@ -1,5 +1,9 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
+
+#define X_START -2.5
+#define X_END 2.5
+#define Y_START -2.5
+#define Y_END 2.5
 
 bool online = false; // system ON/OFF
 
@@ -13,17 +17,19 @@ MainWindow::MainWindow(QWidget *parent) :
     int y = dw.height() * 0.9;
     setFixedSize(x,y);
 
+
     initializeChart();
     ui->frame->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px;}");
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
 
     server = new Server();
-//connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+//    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui = new WorkerThreadGui();
     qRegisterMetaType<std::vector<Position>>("std::vector<Position>");
     connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui->start();
+
 }
 
 void MainWindow::initializeChart(){
@@ -46,11 +52,10 @@ void MainWindow::initializeChart(){
     chart->addSeries(series);
     chart->addSeries(seriesDevices);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(-10, 10);
-    chart->axisY()->setRange(-10, 10);
+    chart->axisX()->setRange(X_START, X_END);
+    chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView->setChart(chart);
     ui->label_boards->setText("0");
-
 }
 
 MainWindow::~MainWindow(){
@@ -96,10 +101,11 @@ void MainWindow::paintBoardsSlot(){
 
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(-10, 10.0);
-    chart->axisY()->setRange(-10, 10.0);
+    chart->axisX()->setRange(X_START, X_END);
+    chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView->setChart(chart);
 }
+
 
 //void MainWindow::on_connectButton_clicked(){
 //    server->setPort(ui->lineEdit->text().toInt());
@@ -179,6 +185,10 @@ void MainWindow::on_pushButton_clicked(){
     server->setConnection(); // faccio partire la connessione
 }
 
+void MainWindow::on_point_clicked(QPointF point){
+    ui->mac_addresses->setText("Questo slot funziona!");
+}
+
 /** This method is invoked each time the server has finished data handling on DB **/
 //void MainWindow::printDevicesSlot(std::vector<Position> vector){
 //   // qDebug() << "Ready to print devices on chart" << endl;
@@ -192,8 +202,8 @@ void MainWindow::on_pushButton_clicked(){
 //            break;
 //        }
 //    series->append(x,y);
-////    series->append(4,4);
-////    series->append(6,6);
+//    series->append(4,4);
+//    series->append(6,6);
 //    chart->addSeries(series);
 //    chart->createDefaultAxes();
 //    chart->axisX()->setRange(0, 10.0);
@@ -216,10 +226,11 @@ void MainWindow::printDevicesSlot(std::vector<Position> vec){
     for (it = vec.begin(); it < vec.end(); it++)
         series->append(it->getX(), it->getY());
 
+    connect(series, &QScatterSeries::clicked, this, &MainWindow::on_point_clicked);
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(-10, 10.0);
-    chart->axisY()->setRange(-10, 10.0);
+    chart->axisX()->setRange(X_START, X_END);
+    chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView->setChart(chart);
 }
 
