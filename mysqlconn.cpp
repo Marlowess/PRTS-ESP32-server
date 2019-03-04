@@ -106,7 +106,7 @@ bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QS
 //    //mutex.unlock();
 //    return res;
 //}
-QMap<QString, QVector<QString>> MySqlConn::selectAll() {
+QMap<QString, QVector<QString>> MySqlConn::selectAll(std::shared_ptr<CalculatorDistance> calc) {
     bool res = false;
     std::vector<Position> vec;
     QMap<QString, QVector<QString>> map;
@@ -155,8 +155,8 @@ QMap<QString, QVector<QString>> MySqlConn::selectAll() {
                 else{
                     if(i > 1){
                         double x, y;
-                        CalculatorDistance calc;
-                        calc.getPosition(rssi[0], rssi[1], rssi[2], rssi[3], &x, &y);
+                        //CalculatorDistance calc;
+                        calc->getPosition(rssi[0], rssi[1], rssi[2], rssi[3], &x, &y);
                         //qDebug() << "x: " << x << "  y: " << y << "  Device " << mac_address_device;
 
                         map = populate_map(map, x, y, mac_address_device);

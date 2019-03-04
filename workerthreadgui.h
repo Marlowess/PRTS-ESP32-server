@@ -15,11 +15,12 @@ public:
         std::cout << "Worker Gui distruttore" << std::endl;
     }
     void run();
+    void setBoardsLocation(int index, int x, int y);
 private:
     MySqlConn msconn;
+    std::shared_ptr<CalculatorDistance> calculator;
 
-private slots:
-
+private slots:    
 signals:
     void paintDevicesSignal(QMap<QString, QVector<QString>>);
 };

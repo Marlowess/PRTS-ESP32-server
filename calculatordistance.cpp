@@ -113,3 +113,13 @@ void CalculatorDistance::getPosition(int rssi1, int rssi2, int rssi3, int rssi4,
     *x = (qf[0] + qf[2]) / 2;
     *y = (qf[1] + qf[3]) / 2;
 }
+
+void CalculatorDistance::setBoardsPosition(int index, int x, int y){
+    ESP_position[index][0] = x;
+    ESP_position[index][1] = y;
+}
+
+void CalculatorDistance::printBoardPositions(){
+    for(int i = 0; i < 4; i++)
+        qDebug() << "Board " << i << ": " << ESP_position[i][0] << ", " << ESP_position[i][1];
+}

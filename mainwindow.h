@@ -28,7 +28,7 @@ public:
     ~MainWindow();
 
 signals:
-    void paintBoardsSignal(std::vector<Position>);
+    void paintBoardsSignal(std::vector<Position>);    
 
 private slots:
 //    void on_connectButton_clicked();
@@ -37,13 +37,13 @@ private slots:
     void printDevicesSlot(QMap<QString, QVector<QString>>);
 
 
-    void on_check_1_stateChanged();
+    void on_check_5_stateChanged();
 
-    void on_check_2_stateChanged();
+    void on_check_6_stateChanged();
 
-    void on_check_3_stateChanged();
+    void on_check_7_stateChanged();
 
-    void on_check_4_stateChanged();
+    void on_check_8_stateChanged();
 
     void on_pushButton_clicked();
 
@@ -53,7 +53,7 @@ private:
     Ui::MainWindow *ui;
     Server *server;
     WorkerThreadGui *threadGui;
-    QMap<QString, QVector<QString>> points_map;
+    QMap<QString, QVector<QString>> points_map;    
 };
 
 #endif // MAINWINDOW_H

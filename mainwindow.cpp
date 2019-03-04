@@ -13,8 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QDesktopWidget dw;
-    int x = dw.width() * 0.9;
-    int y = dw.height() * 0.9;
+    int x = dw.width() * 0.95;
+    int y = dw.height() * 1.0;
     setFixedSize(x,y);
 
 
@@ -22,14 +22,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->frame->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px;}");
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
+    ui->lineEdit_5->setPlaceholderText("ESP #1");
+    ui->lineEdit_6->setPlaceholderText("ESP #2");
+    ui->lineEdit_7->setPlaceholderText("ESP #3");
+    ui->lineEdit_8->setPlaceholderText("ESP #4");  
 
     server = new Server();
 //    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui = new WorkerThreadGui();
     qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
-    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);    
     threadGui->start();
-
 }
 
 void MainWindow::initializeChart(){
@@ -75,28 +78,28 @@ void MainWindow::paintBoardsSlot(){
 
 
     // First checkBox
-    if(ui->check_1->isChecked())
-        series->append(ui->X_1->value(), ui->Y_1->value());
+    if(ui->check_5->isChecked())
+        series->append(ui->X_5->value(), ui->Y_5->value());
     else
-        series->remove(ui->X_1->value(), ui->Y_1->value());
+        series->remove(ui->X_5->value(), ui->Y_5->value());
 
     // Second checkBox
-    if(ui->check_2->isChecked())
-        series->append(ui->X_2->value(), ui->Y_2->value());
+    if(ui->check_6->isChecked())
+        series->append(ui->X_6->value(), ui->Y_6->value());
     else
-        series->remove(ui->X_2->value(), ui->Y_2->value());
+        series->remove(ui->X_6->value(), ui->Y_6->value());
 
     // Third checkBox
-    if(ui->check_3->isChecked())
-        series->append(ui->X_3->value(), ui->Y_3->value());
+    if(ui->check_7->isChecked())
+        series->append(ui->X_7->value(), ui->Y_7->value());
     else
-        series->remove(ui->X_3->value(), ui->Y_3->value());
+        series->remove(ui->X_7->value(), ui->Y_7->value());
 
     // Fourth checkBox
-    if(ui->check_4->isChecked())
-        series->append(ui->X_4->value(), ui->Y_4->value());
+    if(ui->check_8->isChecked())
+        series->append(ui->X_8->value(), ui->Y_8->value());
     else
-        series->remove(ui->X_4->value(), ui->Y_4->value());
+        series->remove(ui->X_8->value(), ui->Y_8->value());
 
 
     chart->addSeries(series);
@@ -118,46 +121,63 @@ void MainWindow::paintBoardsSlot(){
 //}
 
 
-void MainWindow::on_check_1_stateChanged(){
+void MainWindow::on_check_5_stateChanged(){
     paintBoardsSlot();
     int nBoards = ui->label_boards->text().toInt();
-    if(ui->check_1->isChecked())
+    if(ui->check_5->isChecked()){
         nBoards++;
-    else
+        threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value());
+    }
+    else{
         nBoards--;
+        threadGui->setBoardsLocation(0, 0, 0);
+    }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
-void MainWindow::on_check_2_stateChanged(){
+void MainWindow::on_check_6_stateChanged(){
     paintBoardsSlot();
     int nBoards = ui->label_boards->text().toInt();
-    if(ui->check_2->isChecked())
+    if(ui->check_6->isChecked()){
         nBoards++;
-    else
+        threadGui->setBoardsLocation(1, ui->X_6->value(), ui->Y_6->value());
+    }
+    else{
         nBoards--;
+        threadGui->setBoardsLocation(1, 0, 0);
+    }
+
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
-void MainWindow::on_check_3_stateChanged(){
+void MainWindow::on_check_7_stateChanged(){
     paintBoardsSlot();
     int nBoards = ui->label_boards->text().toInt();
-    if(ui->check_3->isChecked())
+    if(ui->check_7->isChecked()){
         nBoards++;
-    else
+        threadGui->setBoardsLocation(2, ui->X_7->value(), ui->Y_7->value());
+    }
+    else{
         nBoards--;
+        threadGui->setBoardsLocation(2, 0, 0);
+    }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
-void MainWindow::on_check_4_stateChanged(){
+void MainWindow::on_check_8_stateChanged(){
     paintBoardsSlot();
     int nBoards = ui->label_boards->text().toInt();
-    if(ui->check_4->isChecked())
+    if(ui->check_8->isChecked()){
         nBoards++;
-    else
+        threadGui->setBoardsLocation(3, ui->X_8->value(), ui->Y_8->value());
+    }
+    else{
         nBoards--;
+        threadGui->setBoardsLocation(3, 0, 0);
+    }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
