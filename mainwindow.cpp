@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QDesktopWidget dw;
-    int x = dw.width() * 0.95;
+    int x = dw.width() * 0.93;
     int y = dw.height() * 1.0;
     setFixedSize(x,y);
 
@@ -37,20 +37,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::initializeChart(){
     QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
 
     QScatterSeries *series = new QScatterSeries();
     series->setName("ESP");
     series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     series->setMarkerSize(10);
-    series->setColor(QColor(51,51,255));
-    series->setPointLabelsColor(QColor(51,51,255));
+    //series->setColor(QColor(51,51,255));
+    //series->setPointLabelsColor(QColor(51,51,255));
 
     QScatterSeries *seriesDevices = new QScatterSeries();
     seriesDevices->setName("Devices");
     seriesDevices->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     seriesDevices->setMarkerSize(10);
-    seriesDevices->setColor(QColor(255,128,0));
-    seriesDevices->setPointLabelsColor(QColor(255,128,0));
+    //seriesDevices->setColor(QColor(255,128,0));
+    //seriesDevices->setPointLabelsColor(QColor(255,128,0));
 
     chart->addSeries(series);
     chart->addSeries(seriesDevices);
@@ -127,10 +128,14 @@ void MainWindow::on_check_5_stateChanged(){
     if(ui->check_5->isChecked()){
         nBoards++;
         threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value());
+        ui->X_5->setEnabled(false);
+        ui->Y_5->setEnabled(false);
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(0, 0, 0);
+        ui->X_5->setEnabled(true);
+        ui->Y_5->setEnabled(true);
     }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
@@ -142,10 +147,14 @@ void MainWindow::on_check_6_stateChanged(){
     if(ui->check_6->isChecked()){
         nBoards++;
         threadGui->setBoardsLocation(1, ui->X_6->value(), ui->Y_6->value());
+        ui->X_6->setEnabled(false);
+        ui->Y_6->setEnabled(false);
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(1, 0, 0);
+        ui->X_6->setEnabled(true);
+        ui->Y_6->setEnabled(true);
     }
 
     ui->label_boards->setText(QString::number(nBoards));
@@ -158,10 +167,14 @@ void MainWindow::on_check_7_stateChanged(){
     if(ui->check_7->isChecked()){
         nBoards++;
         threadGui->setBoardsLocation(2, ui->X_7->value(), ui->Y_7->value());
+        ui->X_7->setEnabled(false);
+        ui->Y_7->setEnabled(false);
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(2, 0, 0);
+        ui->X_7->setEnabled(true);
+        ui->Y_7->setEnabled(true);
     }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
@@ -173,10 +186,14 @@ void MainWindow::on_check_8_stateChanged(){
     if(ui->check_8->isChecked()){
         nBoards++;
         threadGui->setBoardsLocation(3, ui->X_8->value(), ui->Y_8->value());
+        ui->X_8->setEnabled(false);
+        ui->Y_8->setEnabled(false);
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(3, 0, 0);
+        ui->X_8->setEnabled(true);
+        ui->Y_8->setEnabled(true);
     }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
@@ -216,7 +233,7 @@ void MainWindow::on_point_clicked(QPointF point){
     if(points_map.contains(str)){
         vec = points_map.value(str);
         mac = vec.front();
-        ui->mac_addresses->setText(mac);
+        ui->mac_addresses->setText(mac.toUpper() + " (" + QString::number(x) + ", " + QString::number(y) + ")");
     }
 }
 

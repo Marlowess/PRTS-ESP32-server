@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>WiFi packets radar</string>
+   <string>WiFi Radar</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../../Immagini/Radar.jpg</normaloff>../../../../Immagini/Radar.jpg</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -64,12 +68,23 @@
        <rect>
         <x>850</x>
         <y>530</y>
-        <width>351</width>
+        <width>371</width>
         <height>17</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>Ubuntu</family>
+        <pointsize>14</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>TextLabel</string>
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="Line" name="line_5">
@@ -107,14 +122,21 @@
      <widget class="QLabel" name="label_boards">
       <property name="geometry">
        <rect>
-        <x>1060</x>
+        <x>1050</x>
         <y>410</y>
         <width>16</width>
         <height>17</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>17</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>0</string>
+       <string>6</string>
       </property>
      </widget>
      <widget class="QFrame" name="frame">
@@ -483,6 +505,16 @@
          <height>21</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <family>Ubuntu</family>
+         <pointsize>15</pointsize>
+         <weight>7</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">font: 57 15pt &quot;Ubuntu&quot;;</string>
        </property>
@@ -500,6 +532,13 @@
         <height>25</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>URW Gothic L</family>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">color: rgb(238, 238, 236);
 background-color: rgb(32, 74, 135);</string>
@@ -511,7 +550,7 @@ background-color: rgb(32, 74, 135);</string>
      <widget class="Line" name="line_9">
       <property name="geometry">
        <rect>
-        <x>970</x>
+        <x>980</x>
         <y>510</y>
         <width>118</width>
         <height>3</height>
@@ -519,19 +558,6 @@ background-color: rgb(32, 74, 135);</string>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_2">
-      <property name="geometry">
-       <rect>
-        <x>1100</x>
-        <y>610</y>
-        <width>111</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>version no. 0.6</string>
       </property>
      </widget>
      <widget class="QChartView" name="graphicsView">
@@ -545,6 +571,44 @@ background-color: rgb(32, 74, 135);</string>
       </property>
       <property name="styleSheet">
        <string notr="true"/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>610</y>
+        <width>311</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Programmazione di sistema A.Y. 2017/2018</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>630</y>
+        <width>201</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>System console - version 0.7</string>
       </property>
      </widget>
     </widget>
