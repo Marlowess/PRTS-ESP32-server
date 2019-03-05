@@ -12,10 +12,11 @@ void WorkerThreadGui::run() {
     //bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost");
     if (res == true) {
         while(true) {
-            sleep(3);
-            calculator->printBoardPositions();
+            sleep(2);
+            qDebug() << "YEEEEEEEEEEEEEEEEEE";
+            //calculator->printBoardPositions();
             emit paintDevicesSignal(this->msconn.selectAll(calculator));
-            qDebug() << "Go sleeping 5 seconds...";
+            //qDebug() << "Go sleeping 5 seconds...";
             // break;
         }
     }
@@ -34,6 +35,6 @@ void WorkerThreadGui::run() {
 //    emit paintDevicesSignal(vect);
 }
 
-void WorkerThreadGui::setBoardsLocation(int index, int x, int y){
-    calculator->setBoardsPosition(index, x, y);
+void WorkerThreadGui::setBoardsLocation(int index, int x, int y, QString mac){
+    calculator->setBoardsPosition(index, x, y, mac);
 }

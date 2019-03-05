@@ -14,18 +14,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QDesktopWidget dw;
     int x = dw.width() * 0.93;
-    int y = dw.height() * 1.0;
+    int y = dw.height() * 0.92;
     setFixedSize(x,y);
 
 
     initializeChart();
     ui->frame->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px;}");
+    ui->label_30->setStyleSheet("font: bold large Times New Roman");
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
     ui->lineEdit_5->setPlaceholderText("ESP #1");
     ui->lineEdit_6->setPlaceholderText("ESP #2");
     ui->lineEdit_7->setPlaceholderText("ESP #3");
-    ui->lineEdit_8->setPlaceholderText("ESP #4");  
+    ui->lineEdit_8->setPlaceholderText("ESP #4");
 
     server = new Server();
 //    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
@@ -127,13 +128,13 @@ void MainWindow::on_check_5_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_5->isChecked()){
         nBoards++;
-        threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value());
+        threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value(), ui->lineEdit_5->text());
         ui->X_5->setEnabled(false);
         ui->Y_5->setEnabled(false);
     }
     else{
         nBoards--;
-        threadGui->setBoardsLocation(0, 0, 0);
+        threadGui->setBoardsLocation(0, 0, 0, ui->lineEdit_5->text());
         ui->X_5->setEnabled(true);
         ui->Y_5->setEnabled(true);
     }
@@ -146,13 +147,13 @@ void MainWindow::on_check_6_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_6->isChecked()){
         nBoards++;
-        threadGui->setBoardsLocation(1, ui->X_6->value(), ui->Y_6->value());
+        threadGui->setBoardsLocation(1, ui->X_6->value(), ui->Y_6->value(), ui->lineEdit_6->text());
         ui->X_6->setEnabled(false);
         ui->Y_6->setEnabled(false);
     }
     else{
         nBoards--;
-        threadGui->setBoardsLocation(1, 0, 0);
+        threadGui->setBoardsLocation(1, 0, 0, ui->lineEdit_6->text());
         ui->X_6->setEnabled(true);
         ui->Y_6->setEnabled(true);
     }
@@ -166,13 +167,13 @@ void MainWindow::on_check_7_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_7->isChecked()){
         nBoards++;
-        threadGui->setBoardsLocation(2, ui->X_7->value(), ui->Y_7->value());
+        threadGui->setBoardsLocation(2, ui->X_7->value(), ui->Y_7->value(), ui->lineEdit_7->text());
         ui->X_7->setEnabled(false);
         ui->Y_7->setEnabled(false);
     }
     else{
         nBoards--;
-        threadGui->setBoardsLocation(2, 0, 0);
+        threadGui->setBoardsLocation(2, 0, 0, ui->lineEdit_7->text());
         ui->X_7->setEnabled(true);
         ui->Y_7->setEnabled(true);
     }
@@ -185,13 +186,13 @@ void MainWindow::on_check_8_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_8->isChecked()){
         nBoards++;
-        threadGui->setBoardsLocation(3, ui->X_8->value(), ui->Y_8->value());
+        threadGui->setBoardsLocation(3, ui->X_8->value(), ui->Y_8->value(), ui->lineEdit_8->text());
         ui->X_8->setEnabled(false);
         ui->Y_8->setEnabled(false);
     }
     else{
         nBoards--;
-        threadGui->setBoardsLocation(3, 0, 0);
+        threadGui->setBoardsLocation(3, 0, 0, ui->lineEdit_8->text());
         ui->X_8->setEnabled(true);
         ui->Y_8->setEnabled(true);
     }
@@ -233,7 +234,9 @@ void MainWindow::on_point_clicked(QPointF point){
     if(points_map.contains(str)){
         vec = points_map.value(str);
         mac = vec.front();
-        ui->mac_addresses->setText(mac.toUpper() + " (" + QString::number(x) + ", " + QString::number(y) + ")");
+        QStringList list = mac.split('_');
+        ui->mac_addresses->setText(list[0].toUpper() + " (" + QString::number(x) + ", " + QString::number(y) + ")");
+        ui->label_2->setText("This device has been scanned by " + list[1] + " boards.");
     }
 }
 
@@ -280,7 +283,9 @@ void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
     while(i != map.constEnd()) {
         //qDebug() << "Chiave:" << i.key() << " Values:" << i.value() << endl;
         QString key = i.key();
+        //QString val = i.value()[0];
         QStringList list = key.split('_');
+        //QStringList list_2 = i.value().split('_');
         qDebug() << "Chiave:" << list[0] << " Values:" << list[1] << endl;
         int iX = list[0].indexOf(",", 0);
         int iY = list[1].indexOf(",", 0);

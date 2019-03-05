@@ -35,7 +35,7 @@
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>Tab 1</string>
+      <string>Console</string>
      </attribute>
      <widget class="QLabel" name="label_3">
       <property name="geometry">
@@ -84,7 +84,7 @@
        <string/>
       </property>
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
      <widget class="Line" name="line_5">
@@ -512,7 +512,6 @@
          <weight>7</weight>
          <italic>false</italic>
          <bold>false</bold>
-         <kerning>true</kerning>
         </font>
        </property>
        <property name="styleSheet">
@@ -611,10 +610,23 @@ background-color: rgb(32, 74, 135);</string>
        <string>System console - version 0.7</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>560</y>
+        <width>371</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>Tab 2</string>
+      <string>Temporal Diagrams</string>
      </attribute>
     </widget>
    </widget>

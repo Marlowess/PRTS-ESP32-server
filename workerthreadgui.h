@@ -15,7 +15,7 @@ public:
         std::cout << "Worker Gui distruttore" << std::endl;
     }
     void run();
-    void setBoardsLocation(int index, int x, int y);
+    void setBoardsLocation(int index, int x, int y, QString);
 private:
     MySqlConn msconn;
     std::shared_ptr<CalculatorDistance> calculator;

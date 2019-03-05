@@ -42,7 +42,8 @@ public slots:
 
 private:
     int socketDescriptor;
-    std::shared_ptr<MySqlConn> connection;
+    //std::shared_ptr<MySqlConn> connection;
+    MySqlConn connection;
 };
 
 #endif // SERVERTHREAD_H

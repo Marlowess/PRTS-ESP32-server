@@ -109,66 +109,81 @@ bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QS
 QMap<QString, QVector<QString>> MySqlConn::selectAll(std::shared_ptr<CalculatorDistance> calc) {
     bool res = false;
     std::vector<Position> vec;
+    int index;
     QMap<QString, QVector<QString>> map;
     QString mac_address_device = "", timestamp = "";
     int rssi[4] = {0,0,0,0};
     unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
-    unsigned long before = now - 60;
+    unsigned long before = now - 5;
 //    unsigned long now = 1551459117;
 //    unsigned long before = 1551459117 - 60;
-    std::string query_(std::string("select p.mac_address_board, p.mac_address_device, min(p.signal_strength) ")+
+    std::string query_(std::string("select p.mac_address_board, p.mac_address_device, max(p.signal_strength) ")+
                        std::string("from probe_requests p where (p.mac_address_device) in (select p2.mac_address_device from probe_requests p2 ")+
-                        std::string("where p2.timestamp > '") + std::to_string(before) + std::string("' ")+
-                         std::string("and p2.timestamp < '") + std::to_string(now) + std::string("' ")+
+                        std::string("where p2.timestamp >= '") + std::to_string(before) + std::string("' ")+
+                         std::string("and p2.timestamp <= '") + std::to_string(now) + std::string("' ")+
                          std::string("group by p2.mac_address_device ")+
                          std::string("order by p2.mac_address_device) ")+
-                           std::string("and p.timestamp > '") + std::to_string(before) + std::string("' ")+
-                               std::string("and p.timestamp < '") + std::to_string(now) + std::string("' ")+
+                           std::string("and p.timestamp >= '") + std::to_string(before) + std::string("' ")+
+                               std::string("and p.timestamp <= '") + std::to_string(now) + std::string("' ")+
                        std::string("group by mac_address_board, mac_address_device ")+
                        std::string("order by p.mac_address_device;"));
     QString query_string(QString::fromStdString(query_));
     //mutex.lock();
     if ( db_m.isValid() && db_m.isOpen() ) {
         qDebug() << "== Start Result selectAll ===";
-        QSqlQuery query(query_string, db_m);        
+        QSqlQuery query(query_string, db_m);
         if (!query.exec()){
               qDebug() << query.lastError();
               return map;
         }
+        int boardName = query.record().indexOf("mac_address_board");
         int idName = query.record().indexOf("mac_address_device");
-        int idRssi = query.record().indexOf("min(p.signal_strength)");
+        int idRssi = query.record().indexOf("max(p.signal_strength)");
         int i = 0;
         while (query.next()) {
             QString name = query.value(idName).toString();
+            QString board = query.value(boardName).toString();
             if(i == 0){
                 qDebug() << "   MAC: " << name;
+                qDebug() << "   MAC BOARD: " << board;
                 mac_address_device = name;
-                rssi[i] = query.value(idRssi).toInt();                
+                index = calc->getBoardVec(board);
+                qDebug() << "INDICE: " << index;
+                rssi[index] = query.value(idRssi).toInt();
+                //rssi[i] = query.value(idRssi).toInt();
                 i++;
             }
-            else{                
+            else{
                 if(name == mac_address_device){
                     qDebug() << "+MAC: " << name;
-                    rssi[i] = query.value(idRssi).toInt();
+                    index = calc->getBoardVec(board);
+                    qDebug() << "INDICE: " << index;
+                    rssi[index] = query.value(idRssi).toInt();
+                    //rssi[i] = query.value(idRssi).toInt();
                     i++;
                 }
                 else{
                     if(i > 1){
                         double x, y;
                         //CalculatorDistance calc;
-                        calc->getPosition(rssi[0], rssi[1], rssi[2], rssi[3], &x, &y);
+                        //std::vector<int> vec = calc->getBoardVec();
+
+                        int n = calc->getPosition(rssi, &x, &y);
                         //qDebug() << "x: " << x << "  y: " << y << "  Device " << mac_address_device;
 
-                        map = populate_map(map, x, y, mac_address_device);
+                        map = populate_map(map, x, y, mac_address_device, n);
 
                         rssi[0] = 0;
                         rssi[1] = 0;
                         rssi[2] = 0;
                         rssi[3] = 0;
-                        qDebug() << "i = " << QString::fromStdString(std::to_string(i));
+                        //qDebug() << "i = " << QString::fromStdString(std::to_string(i));
                     }
                     mac_address_device = name;
-                    rssi[0] = query.value(idRssi).toInt();
+                    index = calc->getBoardVec(board);
+                    qDebug() << "INDICE: " << index;
+                    rssi[index] = query.value(idRssi).toInt();
+                    //rssi[0] = query.value(idRssi).toInt();
 
                     i = 1;
                     qDebug() << endl;
@@ -222,10 +237,10 @@ bool MySqlConn::insertData(const QString &data){
 
 bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
     bool res = false;
-    if (probeRequest.isEmpty()) return false;
-    mutex.lock();
+    if (probeRequest.isEmpty()) return false;    
     //qDebug() << "La stringa che arriva: " << probeRequest << endl;
     if ( db_m.isValid() && db_m.isOpen() ) {
+        mutex.lock();
         QStringList list =  probeRequest.split(",");
         //for(int i = 0; i < list.length(); i++) {
             //qDebug() << list.at(i);
@@ -249,11 +264,11 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
             qDebug() << "Query executed! Board: " << list.at(0) << " Device: " << list.at(1) << "  Time: " << list.at(3);
             res = true;
         }
+        mutex.unlock();
         //res = true;
     } else {
         qDebug() << "Query failed";
-    }
-    mutex.unlock();
+    }    
     return res;
 }
 
@@ -261,18 +276,18 @@ bool MySqlConn::conn_is_open(){
     return db_m.isOpen();
 }
 
-QMap<QString, QVector<QString>> MySqlConn::populate_map(QMap<QString, QVector<QString>> map, double x, double y, QString mac){
+QMap<QString, QVector<QString>> MySqlConn::populate_map(QMap<QString, QVector<QString>> map, double x, double y, QString mac, int n){
     std::string str = std::to_string(x) + "_" + std::to_string(y);
     QString s(QString::fromStdString(str));
     if(map.contains(s)){
         QVector<QString> vec = map.value(s);
-        vec.push_back(mac);
+        vec.push_back(mac + "_" + QString::number(n));
         map.remove(s);
         map.insert(s, vec);
     }
     else{
         QVector<QString> vec;
-        vec.push_back(mac);
+        vec.push_back(mac + "_" + QString::number(n));
         map.insert(s, vec);
     }
     return map;

@@ -20,10 +20,11 @@ public:
     bool readFromFile(const QString& fileName);
     bool insertData(const QString& data);
     bool conn_is_open();
+    bool delete_table(QString time);
     ~MySqlConn();
 private:
     bool insertProbeRequest(const QString& probeRequest);
-    QMap<QString, QVector<QString>> populate_map(QMap<QString, QVector<QString>>, double, double, QString);
+    QMap<QString, QVector<QString>> populate_map(QMap<QString, QVector<QString>>, double, double, QString, int);
     void print_map(QMap<QString, QVector<QString>>);
     QSqlDatabase db_m;
     QMutex mutex;

@@ -1,8 +1,10 @@
 #include "serverthread.h"
 #include <iostream>
 
-ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::shared_ptr<MySqlConn> connection)
-    :QThread(parent), socketDescriptor(socketDescriptor), connection(connection){
+ServerThread::ServerThread(int socketDescriptor, QObject *parent, std::shared_ptr<MySqlConn> conn)
+    :QThread(parent), socketDescriptor(socketDescriptor)/*, connection(connection)*/{
+    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+    connection.openConn("probe_requests_db", "root", "password", "localhost", QString::number(now) + qrand());
 }
 
 /** When thread starts, this method is invoked **/
@@ -46,10 +48,12 @@ void ServerThread::run(){
         /* Conversion from ASCII to QString, according to DB specs */        
         char _buf[256];
         packetCreator(_buf, dataBuffer, size);
-        qDebug() << _buf << endl;
+        //qDebug() << _buf << endl;
 
         /* Now I insert the packet into the DB */
-        connection->insertData(_buf);
+        //connection->insertData(_buf);
+
+        connection.insertData(_buf);
 
         /* TODO Implementare una nuova funzione di hash standard, come MD5 */
         //qDebug() << "Hash string: " << hashFunction(std::string(_buf)).c_str();

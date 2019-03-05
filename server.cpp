@@ -65,8 +65,10 @@ unsigned long Server::getSystemTime(){
 void Server::incomingConnection(qintptr socketDescriptor){
     /* The following code is executed each time a new board gets connected to server */
     qDebug("New Connection!");
-    emit newConnect();   
+    emit newConnect();
+    //std::shared_ptr<MySqlConn> conn = std::make_shared<MySqlConn>();
     ServerThread *thread = new ServerThread(socketDescriptor, this, connection);
+    //ServerThread *thread = new ServerThread(socketDescriptor, this, conn);
     //connect(thread, &ServerThread::finished, thread, &ServerThread::deleteLater);
     //connect(thread, &ServerThread::finished, this, &Server::threadFinished);
     newThreadRecord();
