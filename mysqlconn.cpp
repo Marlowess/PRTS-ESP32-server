@@ -331,3 +331,28 @@ bool MySqlConn::insert_positions_data(QString mac, QString timestamp, float x, f
     }
     return res;
 }
+
+QVector<Historical_device> MySqlConn::getHistoricalData(QString start, QString end){
+    QVector<Historical_device> vec;
+    QString query_string("select distinct mac_address_device, min(timestamp), max(timestamp), count(*) as count "
+                                   "from devices_timestamps_pos "
+                                   "where timestamp > " + start + " and timestamp < " + end + " "
+                                   "group by mac_address_device "
+                                   "order by count desc;");
+    if ( db_m.isValid() && db_m.isOpen() ) {
+        QSqlQuery query(query_string, db_m);
+        if (!query.exec()){
+              qDebug() << query.lastError();
+              return vec;
+        }
+        int idName = query.record().indexOf("mac_address_device");
+        int idStart = query.record().indexOf("min(timestamp)");
+        int idEnd = query.record().indexOf("max(timestamp)");
+        int n = query.record().indexOf("count");
+        while (query.next()) {
+            Historical_device device(query.value(idName).toString(), query.value(idStart).toString(), query.value(idEnd).toString(), query.value(n).toInt());
+            vec.push_back(device);
+        }
+    }
+    return vec;
+}

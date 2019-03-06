@@ -13,6 +13,8 @@
 #include "ui_mainwindow.h"
 #include <QMap>
 #include <QVector>
+#include "historical_device.h"
+#include "historical_thread.h"
 
 
 namespace Ui {
@@ -45,11 +47,13 @@ private slots:
     void on_point_clicked(QPointF);
     void on_tab_click(int index);
     void on_historical_button_click();
+    void newHistoricalDataSlot(QVector<Historical_device>);
 
 private:
     Ui::MainWindow *ui;
     Server *server;
     WorkerThreadGui *threadGui;
+    Historical_thread *hist_thread;
     QMap<QString, QVector<QString>> points_map;    
 };
 

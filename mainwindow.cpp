@@ -32,12 +32,13 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Connection to tabWidgets */
     connect(ui->tabWidget, &QTabWidget::tabBarClicked, this, &MainWindow::on_tab_click);
 
+    /*
     server = new Server();
-    //    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui = new WorkerThreadGui();
     qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
     connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui->start();
+    */
 }
 
 void MainWindow::initializeChart(){
@@ -338,40 +339,58 @@ void MainWindow::on_tab_click(int index){
 }
 
 void MainWindow::on_historical_button_click(){
-    QBoxPlotSeries *acmeSeries = new QBoxPlotSeries();
-    acmeSeries->setName("Acme Ltd");
 
-    QBoxSet *box = new QBoxSet("box1");
-    box->setValue(QBoxSet::LowerExtreme, 20);
-    box->setValue(QBoxSet::UpperExtreme, 25);
-    box->setValue(QBoxSet::Median, 1);
-    box->setValue(QBoxSet::LowerQuartile, 1);
-    box->setValue(QBoxSet::UpperQuartile, 1);
+    //uint msecs = ui->dateTimeEdit->time().msecsTo(ui->dateTimeEdit->time());
+    QDateTime start_timestamp = ui->dateTimeEdit->dateTime();
+    QDateTime end_timestamp = ui->dateTimeEdit_2->dateTime();
 
-    QBoxSet *box2 = new QBoxSet("box2");
-    box2->setValue(QBoxSet::LowerExtreme, 17);
-    box2->setValue(QBoxSet::UpperExtreme, 23);
-    box2->setValue(QBoxSet::Median, 1);
-    box2->setValue(QBoxSet::LowerQuartile, 1);
-    box2->setValue(QBoxSet::UpperQuartile, 1);
 
-    acmeSeries->append(box);
-    acmeSeries->append(box2);
+    /* Here I have to put the code to retrieve infos about devices and timestamps */
+    hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()));
+    qRegisterMetaType<QVector<Historical_device>>("QVector<Historical_device>");
+    connect(hist_thread, &Historical_thread::newDataSignal, this, &MainWindow::newHistoricalDataSlot);
+    hist_thread->start();
+}
 
-    QChart *chart = new QChart();
-    chart->setTheme(QChart::ChartThemeBlueCerulean);
-    chart->addSeries(acmeSeries);
-    chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-    chart->createDefaultAxes();
-    chart->axes(Qt::Vertical).first()->setMin(15.0);
-    chart->axes(Qt::Horizontal).first()->setMax(34.0);
+void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
+    // Here I handle and print data
+    for(int i = 0; i < vec.size(); i++)
+        qDebug() << "MAC: " << vec[i].getMacAddress() << " START:" << vec[i].getStartTimestamp() << " END: " << vec[i].getEndTimestamp() << " N_TIMES: " << vec[i].getNTimes();
 
-    chart->legend()->setVisible(true);
-    chart->legend()->setAlignment(Qt::AlignBottom);
+//    QBoxPlotSeries *acmeSeries = new QBoxPlotSeries();
+//    acmeSeries->setName("Acme Ltd");
 
-    ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
-    ui->graphicsView_2->setChart(chart);
+//    QBoxSet *box = new QBoxSet("box1");
+//    box->setValue(QBoxSet::LowerExtreme, 20);
+//    box->setValue(QBoxSet::UpperExtreme, 25);
+//    box->setValue(QBoxSet::Median, 1);
+//    box->setValue(QBoxSet::LowerQuartile, 1);
+//    box->setValue(QBoxSet::UpperQuartile, 1);
+
+//    QBoxSet *box2 = new QBoxSet("box2");
+//    box2->setValue(QBoxSet::LowerExtreme, 17);
+//    box2->setValue(QBoxSet::UpperExtreme, 23);
+//    box2->setValue(QBoxSet::Median, 1);
+//    box2->setValue(QBoxSet::LowerQuartile, 1);
+//    box2->setValue(QBoxSet::UpperQuartile, 1);
+
+//    acmeSeries->append(box);
+//    acmeSeries->append(box2);
+
+//    QChart *chart = new QChart();
+//    chart->setTheme(QChart::ChartThemeBlueCerulean);
+//    chart->addSeries(acmeSeries);
+//    chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
+//    chart->setAnimationOptions(QChart::SeriesAnimations);
+//    chart->createDefaultAxes();
+//    chart->axes(Qt::Vertical).first()->setMin(15.0);
+//    chart->axes(Qt::Horizontal).first()->setMax(34.0);
+
+//    chart->legend()->setVisible(true);
+//    chart->legend()->setAlignment(Qt::AlignBottom);
+
+//    ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
+//    ui->graphicsView_2->setChart(chart);
 }
 
 

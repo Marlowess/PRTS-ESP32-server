@@ -32,7 +32,9 @@ SOURCES += \
     mysqlconn.cpp \
     workerthreadgui.cpp \
     position.cpp \
-    calculatordistance.cpp
+    calculatordistance.cpp \
+    historical_device.cpp \
+    historical_thread.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,7 +44,9 @@ HEADERS += \
     mysqlconn.h \
     workerthreadgui.h \
     position.h \
-    calculatordistance.h
+    calculatordistance.h \
+    historical_device.h \
+    historical_thread.h
 
 FORMS += \
         mainwindow.ui \
