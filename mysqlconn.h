@@ -20,6 +20,7 @@ public:
     bool readFromFile(const QString& fileName);
     bool insertData(const QString& data);
     bool conn_is_open();
+    bool insert_positions_data(QString mac, QString timestamp, float x, float y);
     bool delete_table(QString time);
     ~MySqlConn();
 private:

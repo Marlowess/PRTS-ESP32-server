@@ -49,7 +49,7 @@ void MainWindow::initializeChart(){
 
     QScatterSeries *seriesDevices = new QScatterSeries();
     seriesDevices->setName("Devices");
-    seriesDevices->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+    seriesDevices->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     seriesDevices->setMarkerSize(10);
     //seriesDevices->setColor(QColor(255,128,0));
     //seriesDevices->setPointLabelsColor(QColor(255,128,0));

@@ -170,6 +170,7 @@ QMap<QString, QVector<QString>> MySqlConn::selectAll(std::shared_ptr<CalculatorD
 
                         int n = calc->getPosition(rssi, &x, &y);
                         //qDebug() << "x: " << x << "  y: " << y << "  Device " << mac_address_device;
+                        insert_positions_data(mac_address_device, QString::number(now), x, y);
 
                         map = populate_map(map, x, y, mac_address_device, n);
 
@@ -239,7 +240,7 @@ bool MySqlConn::insertProbeRequest(const QString& probeRequest) {
     bool res = false;
     if (probeRequest.isEmpty()) return false;    
     //qDebug() << "La stringa che arriva: " << probeRequest << endl;
-    if ( db_m.isValid() && db_m.isOpen() ) {
+    if (db_m.isValid() && db_m.isOpen()) {
         mutex.lock();
         QStringList list =  probeRequest.split(",");
         //for(int i = 0; i < list.length(); i++) {
@@ -300,4 +301,33 @@ void MySqlConn::print_map(QMap<QString, QVector<QString>> map){
         qDebug() << "Chiave:" << i.key() << " Values:" << i.value() << endl;
         i++;
     }
+}
+
+bool MySqlConn::insert_positions_data(QString mac, QString timestamp, float x, float y){
+    bool res = false;
+    if (db_m.isValid() && db_m.isOpen()) {
+        QSqlQuery query(db_m);
+        query.prepare("insert into devices_timestamps_pos(mac_address_device,timestamp,pos_x,pos_y) "
+                      "values(:mac_address_device, :timestamp, :x, :y);");
+
+        query.bindValue(":mac_address_device", mac);
+        query.bindValue(":timestamp", timestamp);
+        query.bindValue(":x", x);
+        query.bindValue(":y", y);
+
+        if (!query.exec()) {
+//            qDebug() << query.executedQuery();
+            qDebug() << "Couldn't exec query for devices_timestamps_pos";
+//            qDebug() << "Error motivation: " << db_m.lastError();
+        } else {
+//            qDebug() << query.executedQuery();
+            qDebug() << "Query executed!  Device: " << mac << "  Time: " << timestamp << "(x,y): (" << x << ", " << y << ")";
+            res = true;
+        }
+        mutex.unlock();
+        //res = true;
+    } else {
+        qDebug() << "Query failed";
+    }
+    return res;
 }
