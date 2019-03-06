@@ -344,6 +344,9 @@ void MainWindow::on_historical_button_click(){
     QDateTime start_timestamp = ui->dateTimeEdit->dateTime();
     QDateTime end_timestamp = ui->dateTimeEdit_2->dateTime();
 
+    this->historical_timestamp_start = QString::number(start_timestamp.toTime_t());
+    this->historical_timestamp_end = QString::number(end_timestamp.toTime_t());
+
 
     /* Here I have to put the code to retrieve infos about devices and timestamps */
     hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()));
@@ -377,20 +380,62 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
 //    acmeSeries->append(box);
 //    acmeSeries->append(box2);
 
-//    QChart *chart = new QChart();
-//    chart->setTheme(QChart::ChartThemeBlueCerulean);
+    QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
 //    chart->addSeries(acmeSeries);
-//    chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
-//    chart->setAnimationOptions(QChart::SeriesAnimations);
-//    chart->createDefaultAxes();
-//    chart->axes(Qt::Vertical).first()->setMin(15.0);
-//    chart->axes(Qt::Horizontal).first()->setMax(34.0);
+    chart->setTitle("Historical Data");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
 
-//    chart->legend()->setVisible(true);
-//    chart->legend()->setAlignment(Qt::AlignBottom);
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
 
-//    ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
-//    ui->graphicsView_2->setChart(chart);
+    boxPlotFiller(vec, chart);
+
+    chart->createDefaultAxes();
+    chart->axisX()->setRange(0, vec.size()+1);
+    chart->axisX()->setLabelsVisible(false);
+    chart->axisY()->setRange(historical_timestamp_start, historical_timestamp_end);
+//    chart->axes(Qt::Vertical).first()->setMin(historical_timestamp_start);
+//    chart->axes(Qt::Horizontal).first()->setMax(historical_timestamp_end);
+
+    ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
+    ui->graphicsView_2->setChart(chart);
 }
+
+void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
+    for(int i = 0; i < vec.size(); i++){
+        QString mac = vec[i].getMacAddress();
+        int startTime = vec[i].getStartTimestamp().toInt();
+        int endTime = vec[i].getEndTimestamp().toInt();
+        int nTimes = vec[i].getNTimes();
+
+//        QBoxPlotSeries *series = new QBoxPlotSeries();
+//        series->setName(mac + "(" + QString::number(nTimes) + ")");
+//        QBoxSet *box = new QBoxSet();
+//        box->setValue(QBoxSet::LowerExtreme, startTime);
+//        box->setValue(QBoxSet::UpperExtreme, endTime);
+//        series->append(box);
+//        chart->addSeries(series);
+        QLineSeries *series = new QLineSeries();
+        series->append(i+1, startTime);
+        series->append(i+1, endTime);
+        series->setName(mac + "(" + QString::number(nTimes) + ")");
+        chart->addSeries(series);
+        QPen pen = series->pen();
+        pen.setWidth(5);
+        series->setPen(pen);
+    }
+}
+
+//qreal MainWindow::findMedian(int begin, int end){
+//    int count = end - begin;
+//    if (count % 2) {
+//        return sortedList.at(count / 2 + begin);
+//    } else {
+//        qreal right = sortedList.at(count / 2 + begin);
+//        qreal left = sortedList.at(count / 2 - 1 + begin);
+//        return (right + left) / 2.0;
+//    }
+//}
 
 

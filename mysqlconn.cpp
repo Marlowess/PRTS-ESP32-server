@@ -349,9 +349,12 @@ QVector<Historical_device> MySqlConn::getHistoricalData(QString start, QString e
         int idStart = query.record().indexOf("min(timestamp)");
         int idEnd = query.record().indexOf("max(timestamp)");
         int n = query.record().indexOf("count");
+        int i = 0;
         while (query.next()) {
-            Historical_device device(query.value(idName).toString(), query.value(idStart).toString(), query.value(idEnd).toString(), query.value(n).toInt());
+            if(i > 5) break;
+            Historical_device device(query.value(idStart).toString(), query.value(idEnd).toString(), query.value(idName).toString(), query.value(n).toInt());
             vec.push_back(device);
+            i++;
         }
     }
     return vec;

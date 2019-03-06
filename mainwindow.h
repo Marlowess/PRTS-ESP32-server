@@ -54,7 +54,11 @@ private:
     Server *server;
     WorkerThreadGui *threadGui;
     Historical_thread *hist_thread;
-    QMap<QString, QVector<QString>> points_map;    
+    QMap<QString, QVector<QString>> points_map;
+    void boxPlotFiller(QVector<Historical_device>, QChart *);
+    QString historical_timestamp_start;
+    QString historical_timestamp_end;
+    qreal findMedian(int begin, int end);
 };
 
 #endif // MAINWINDOW_H
