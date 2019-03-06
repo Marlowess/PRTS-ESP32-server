@@ -13,13 +13,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QDesktopWidget dw;
-    int x = dw.width() * 0.93;
+    int x = dw.width() * 0.92;
     int y = dw.height() * 0.92;
     setFixedSize(x,y);
 
 
     initializeChart();
-    ui->frame->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px;}");
+    //background-color: rgb(211, 215, 207);
+    ui->frame->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px; background-color: rgb(211, 215, 207)}");
     ui->label_30->setStyleSheet("font: bold large Times New Roman");
     ui->label_status->setText("DISABLED");
     ui->label_status->setStyleSheet("QLabel { color : red; }");
@@ -28,11 +29,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_7->setPlaceholderText("ESP #3");
     ui->lineEdit_8->setPlaceholderText("ESP #4");
 
+    /* Connection to tabWidgets */
+    connect(ui->tabWidget, &QTabWidget::tabBarClicked, this, &MainWindow::on_tab_click);
+
     server = new Server();
-//    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+    //    connect(server, &Server::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui = new WorkerThreadGui();
     qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
-    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);    
+    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui->start();
 }
 
@@ -60,6 +64,7 @@ void MainWindow::initializeChart(){
     chart->axisX()->setRange(X_START, X_END);
     chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView->setChart(chart);
+    ui->graphicsView->setStyleSheet("background-color: rgb(255, 255, 255)}");
     ui->label_boards->setText("0");
 }
 
@@ -131,12 +136,15 @@ void MainWindow::on_check_5_stateChanged(){
         threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value(), ui->lineEdit_5->text());
         ui->X_5->setEnabled(false);
         ui->Y_5->setEnabled(false);
+        ui->lineEdit_5->setEnabled(false);
+
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(0, 0, 0, ui->lineEdit_5->text());
         ui->X_5->setEnabled(true);
         ui->Y_5->setEnabled(true);
+        ui->lineEdit_5->setEnabled(true);
     }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
@@ -150,12 +158,14 @@ void MainWindow::on_check_6_stateChanged(){
         threadGui->setBoardsLocation(1, ui->X_6->value(), ui->Y_6->value(), ui->lineEdit_6->text());
         ui->X_6->setEnabled(false);
         ui->Y_6->setEnabled(false);
+        ui->lineEdit_6->setEnabled(false);
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(1, 0, 0, ui->lineEdit_6->text());
         ui->X_6->setEnabled(true);
         ui->Y_6->setEnabled(true);
+        ui->lineEdit_6->setEnabled(true);
     }
 
     ui->label_boards->setText(QString::number(nBoards));
@@ -170,12 +180,14 @@ void MainWindow::on_check_7_stateChanged(){
         threadGui->setBoardsLocation(2, ui->X_7->value(), ui->Y_7->value(), ui->lineEdit_7->text());
         ui->X_7->setEnabled(false);
         ui->Y_7->setEnabled(false);
+        ui->lineEdit_7->setEnabled(false);
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(2, 0, 0, ui->lineEdit_7->text());
         ui->X_7->setEnabled(true);
         ui->Y_7->setEnabled(true);
+        ui->lineEdit_7->setEnabled(true);
     }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
@@ -189,12 +201,14 @@ void MainWindow::on_check_8_stateChanged(){
         threadGui->setBoardsLocation(3, ui->X_8->value(), ui->Y_8->value(), ui->lineEdit_8->text());
         ui->X_8->setEnabled(false);
         ui->Y_8->setEnabled(false);
+        ui->lineEdit_8->setEnabled(false);
     }
     else{
         nBoards--;
         threadGui->setBoardsLocation(3, 0, 0, ui->lineEdit_8->text());
         ui->X_8->setEnabled(true);
         ui->Y_8->setEnabled(true);
+        ui->lineEdit_8->setEnabled(true);
     }
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
@@ -263,7 +277,7 @@ void MainWindow::on_point_clicked(QPointF point){
 //}
 
 void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
-   // qDebug() << "Ready to print devices on chart" << endl;
+    // qDebug() << "Ready to print devices on chart" << endl;
     this->points_map = map;
     QScatterSeries *series = new QScatterSeries();
     series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
@@ -275,17 +289,12 @@ void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
             delete q;
             break;
         }
-//    std::vector<Position>::iterator it;
-//    for (it = vec.begin(); it < vec.end(); it++)
-//        series->append(it->getX(), it->getY());
-
     QMap<QString, QVector<QString>>::const_iterator i = map.constBegin();
     while(i != map.constEnd()) {
         //qDebug() << "Chiave:" << i.key() << " Values:" << i.value() << endl;
         QString key = i.key();
         //QString val = i.value()[0];
         QStringList list = key.split('_');
-        //QStringList list_2 = i.value().split('_');
         qDebug() << "Chiave:" << list[0] << " Values:" << list[1] << endl;
         int iX = list[0].indexOf(",", 0);
         int iY = list[1].indexOf(",", 0);
@@ -302,6 +311,67 @@ void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
     chart->axisX()->setRange(X_START, X_END);
     chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView->setChart(chart);
+}
+
+void MainWindow::on_tab_click(int index){
+    //qDebug() << "CLICKED TAB " << QString::number(index);
+    switch(index){
+    case 0:
+        break;
+    case 1:
+        break;
+    case 2:
+        connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_historical_button_click);
+        QChart *chart = new QChart();
+        chart->setTheme(QChart::ChartThemeBlueCerulean);
+        chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
+        chart->setAnimationOptions(QChart::SeriesAnimations);
+        chart->createDefaultAxes();
+
+        chart->legend()->setVisible(true);
+        chart->legend()->setAlignment(Qt::AlignBottom);
+
+        ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
+        ui->graphicsView_2->setChart(chart);
+        return;
+    }
+}
+
+void MainWindow::on_historical_button_click(){
+    QBoxPlotSeries *acmeSeries = new QBoxPlotSeries();
+    acmeSeries->setName("Acme Ltd");
+
+    QBoxSet *box = new QBoxSet("box1");
+    box->setValue(QBoxSet::LowerExtreme, 20);
+    box->setValue(QBoxSet::UpperExtreme, 25);
+    box->setValue(QBoxSet::Median, 1);
+    box->setValue(QBoxSet::LowerQuartile, 1);
+    box->setValue(QBoxSet::UpperQuartile, 1);
+
+    QBoxSet *box2 = new QBoxSet("box2");
+    box2->setValue(QBoxSet::LowerExtreme, 17);
+    box2->setValue(QBoxSet::UpperExtreme, 23);
+    box2->setValue(QBoxSet::Median, 1);
+    box2->setValue(QBoxSet::LowerQuartile, 1);
+    box2->setValue(QBoxSet::UpperQuartile, 1);
+
+    acmeSeries->append(box);
+    acmeSeries->append(box2);
+
+    QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
+    chart->addSeries(acmeSeries);
+    chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->createDefaultAxes();
+    chart->axes(Qt::Vertical).first()->setMin(15.0);
+    chart->axes(Qt::Horizontal).first()->setMax(34.0);
+
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+
+    ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
+    ui->graphicsView_2->setChart(chart);
 }
 
 

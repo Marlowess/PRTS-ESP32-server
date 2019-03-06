@@ -37,18 +37,14 @@ private slots:
     void paintBoardsSlot();
     void printDevicesSlot(QMap<QString, QVector<QString>>);
 
-
     void on_check_5_stateChanged();
-
     void on_check_6_stateChanged();
-
     void on_check_7_stateChanged();
-
     void on_check_8_stateChanged();
-
     void on_pushButton_clicked();
-
     void on_point_clicked(QPointF);
+    void on_tab_click(int index);
+    void on_historical_button_click();
 
 private:
     Ui::MainWindow *ui;
