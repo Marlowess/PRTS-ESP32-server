@@ -76,6 +76,7 @@ private:
     WorkerThreadTab* workerTab_One;
 
     int old_tab;
+    bool tab_2_instantiate = false;
 
     // FRANK ADD FUNCTIONs
     void ManageTab1(int);

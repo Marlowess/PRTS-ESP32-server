@@ -331,20 +331,25 @@ void MainWindow::on_tab_click(int index){
         //break;
         this->old_tab = index;
         return;
-    case 2:        
-        QChart *chart = new QChart();
-        chart->setTheme(QChart::ChartThemeBlueCerulean);
-        chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
-        chart->setAnimationOptions(QChart::SeriesAnimations);
-        chart->createDefaultAxes();
+    case 2:
+        //if(old_tab == 2) break;
+        if(!tab_2_instantiate){
+            tab_2_instantiate = true;
+            QChart *chart = new QChart();
+            chart->setTheme(QChart::ChartThemeBlueCerulean);
+            chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
+            chart->setAnimationOptions(QChart::SeriesAnimations);
+            chart->createDefaultAxes();
 
-        chart->legend()->setVisible(true);
-        chart->legend()->setAlignment(Qt::AlignBottom);
+            chart->legend()->setVisible(true);
+            chart->legend()->setAlignment(Qt::AlignBottom);
 
-        ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
-        ui->graphicsView_2->setChart(chart);
+            ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
+            ui->graphicsView_2->setChart(chart);
+        }
         break;
     }
+    this->old_tab = index;
     this->ManageTab1(index);
     return;
 }
@@ -371,29 +376,29 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
     for(int i = 0; i < vec.size(); i++)
         qDebug() << "MAC: " << vec[i].getMacAddress() << " START:" << vec[i].getStartTimestamp() << " END: " << vec[i].getEndTimestamp() << " N_TIMES: " << vec[i].getNTimes();
 
-//    QBoxPlotSeries *acmeSeries = new QBoxPlotSeries();
-//    acmeSeries->setName("Acme Ltd");
+    //    QBoxPlotSeries *acmeSeries = new QBoxPlotSeries();
+    //    acmeSeries->setName("Acme Ltd");
 
-//    QBoxSet *box = new QBoxSet("box1");
-//    box->setValue(QBoxSet::LowerExtreme, 20);
-//    box->setValue(QBoxSet::UpperExtreme, 25);
-//    box->setValue(QBoxSet::Median, 1);
-//    box->setValue(QBoxSet::LowerQuartile, 1);
-//    box->setValue(QBoxSet::UpperQuartile, 1);
+    //    QBoxSet *box = new QBoxSet("box1");
+    //    box->setValue(QBoxSet::LowerExtreme, 20);
+    //    box->setValue(QBoxSet::UpperExtreme, 25);
+    //    box->setValue(QBoxSet::Median, 1);
+    //    box->setValue(QBoxSet::LowerQuartile, 1);
+    //    box->setValue(QBoxSet::UpperQuartile, 1);
 
-//    QBoxSet *box2 = new QBoxSet("box2");
-//    box2->setValue(QBoxSet::LowerExtreme, 17);
-//    box2->setValue(QBoxSet::UpperExtreme, 23);
-//    box2->setValue(QBoxSet::Median, 1);
-//    box2->setValue(QBoxSet::LowerQuartile, 1);
-//    box2->setValue(QBoxSet::UpperQuartile, 1);
+    //    QBoxSet *box2 = new QBoxSet("box2");
+    //    box2->setValue(QBoxSet::LowerExtreme, 17);
+    //    box2->setValue(QBoxSet::UpperExtreme, 23);
+    //    box2->setValue(QBoxSet::Median, 1);
+    //    box2->setValue(QBoxSet::LowerQuartile, 1);
+    //    box2->setValue(QBoxSet::UpperQuartile, 1);
 
-//    acmeSeries->append(box);
-//    acmeSeries->append(box2);
+    //    acmeSeries->append(box);
+    //    acmeSeries->append(box2);
 
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
-//    chart->addSeries(acmeSeries);
+    //    chart->addSeries(acmeSeries);
     chart->setTitle("Historical Data");
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
@@ -406,8 +411,8 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
     chart->axisX()->setRange(0, vec.size()+1);
     chart->axisX()->setLabelsVisible(false);
     chart->axisY()->setRange(historical_timestamp_start, historical_timestamp_end);
-//    chart->axes(Qt::Vertical).first()->setMin(historical_timestamp_start);
-//    chart->axes(Qt::Horizontal).first()->setMax(historical_timestamp_end);
+    //    chart->axes(Qt::Vertical).first()->setMin(historical_timestamp_start);
+    //    chart->axes(Qt::Horizontal).first()->setMax(historical_timestamp_end);
 
     ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
     ui->graphicsView_2->setChart(chart);
@@ -420,13 +425,13 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
         int endTime = vec[i].getEndTimestamp().toInt();
         int nTimes = vec[i].getNTimes();
 
-//        QBoxPlotSeries *series = new QBoxPlotSeries();
-//        series->setName(mac + "(" + QString::number(nTimes) + ")");
-//        QBoxSet *box = new QBoxSet();
-//        box->setValue(QBoxSet::LowerExtreme, startTime);
-//        box->setValue(QBoxSet::UpperExtreme, endTime);
-//        series->append(box);
-//        chart->addSeries(series);
+        //        QBoxPlotSeries *series = new QBoxPlotSeries();
+        //        series->setName(mac + "(" + QString::number(nTimes) + ")");
+        //        QBoxSet *box = new QBoxSet();
+        //        box->setValue(QBoxSet::LowerExtreme, startTime);
+        //        box->setValue(QBoxSet::UpperExtreme, endTime);
+        //        series->append(box);
+        //        chart->addSeries(series);
         QLineSeries *series = new QLineSeries();
         series->append(i+1, startTime);
         series->append(i+1, endTime);
@@ -451,7 +456,7 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
 
 // FRANK ADD FUNCTIONs
 void MainWindow::SetMutexsAndCondVars(void) {
-        // FRANK ADD f()
+    // FRANK ADD f()
     qDebug() << "setup mutexs and cond variables";
     this->notfied.reset(new bool());
     this->mutex.reset(new QMutex());
@@ -465,7 +470,7 @@ void MainWindow::SetMutexsAndCondVars(void) {
 }
 void MainWindow::ManageTab1(int curr_tab) {
 
-        // FRANK ADD f()
+    // FRANK ADD f()
 
     if (curr_tab == 1) {
         //qDebug() << "manage tab one: run thread";
@@ -485,8 +490,8 @@ void MainWindow::ManageTab1(int curr_tab) {
             qDebug() << "manage tab one: resume thread";
             {//std::unique_lock<QMutex> _lock(*this->mutex2); //_lock.lock();
                 this->mutex2->lock();
-                  *(this->restart) = true;
-                  this->waitCondition2->wakeAll();
+                *(this->restart) = true;
+                this->waitCondition2->wakeAll();
                 this->mutex2->unlock();
             }
         }
@@ -494,14 +499,14 @@ void MainWindow::ManageTab1(int curr_tab) {
         qDebug() << "manage tab one: pause thread";
         if (*this->restart == true) {
             qDebug() << "manage tab one: notify - pause";
-              //std::unique_lock<QMutex> lock(*this->mutex);
-              //lock.lock();
+            //std::unique_lock<QMutex> lock(*this->mutex);
+            //lock.lock();
 
-              this->mutex->lock();
-              *(this->notfied) = true;
-              *(this->restart) = false;
-              this->waitCondition->wakeAll();
-              this->mutex->unlock();
+            this->mutex->lock();
+            *(this->notfied) = true;
+            *(this->restart) = false;
+            this->waitCondition->wakeAll();
+            this->mutex->unlock();
             //qDebug() << "manage tab one: notified";
 
         }
