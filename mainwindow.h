@@ -16,6 +16,9 @@
 #include "historical_device.h"
 #include "historical_thread.h"
 
+// FRANK ADD LIBs
+#include "workerthreadtab.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -59,6 +62,25 @@ private:
     QString historical_timestamp_start;
     QString historical_timestamp_end;
     qreal findMedian(int begin, int end);
+
+    // FRANK ADD ATTRIBUTEs
+
+    QSharedPointer<bool> notfied;
+
+    QSharedPointer<QMutex> mutex;
+    QSharedPointer<QWaitCondition> waitCondition;
+
+    QSharedPointer<bool> restart;
+    QSharedPointer<QMutex> mutex2;
+    QSharedPointer<QWaitCondition> waitCondition2;
+    WorkerThreadTab* workerTab_One;
+
+    int old_tab;
+
+    // FRANK ADD FUNCTIONs
+    void ManageTab1(int);
+    void SetMutexsAndCondVars(void);
+    void makePlotTab_One(QList<QPair<QString, double>>*);
 };
 
 #endif // MAINWINDOW_H

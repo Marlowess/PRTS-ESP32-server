@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network charts sql
+QT       += core gui network charts sql printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -34,7 +34,9 @@ SOURCES += \
     position.cpp \
     calculatordistance.cpp \
     historical_device.cpp \
-    historical_thread.cpp
+    historical_thread.cpp \
+    workerthreadtab.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,7 +48,9 @@ HEADERS += \
     position.h \
     calculatordistance.h \
     historical_device.h \
-    historical_thread.h
+    historical_thread.h \
+    workerthreadtab.h \
+    qcustomplot.h
 
 FORMS += \
         mainwindow.ui \

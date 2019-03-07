@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "qcustomplot.h"
 
 #define X_START -6
 #define X_END 6
@@ -32,13 +33,16 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Connection to tabWidgets */
     connect(ui->tabWidget, &QTabWidget::tabBarClicked, this, &MainWindow::on_tab_click);
 
-    /*
+    /* Connection between historical button and tab */
+    connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_historical_button_click);
+
     server = new Server();
     threadGui = new WorkerThreadGui();
     qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
     connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
     threadGui->start();
-    */
+
+    this->SetMutexsAndCondVars();
 }
 
 void MainWindow::initializeChart(){
@@ -70,6 +74,9 @@ void MainWindow::initializeChart(){
 }
 
 MainWindow::~MainWindow(){
+    if(workerTab_One != nullptr) {
+        delete  workerTab_One;
+    }
     delete ui;
 }
 
@@ -320,9 +327,11 @@ void MainWindow::on_tab_click(int index){
     case 0:
         break;
     case 1:
-        break;
-    case 2:
-        connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_historical_button_click);
+        this->ManageTab1(index);
+        //break;
+        this->old_tab = index;
+        return;
+    case 2:        
         QChart *chart = new QChart();
         chart->setTheme(QChart::ChartThemeBlueCerulean);
         chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
@@ -334,8 +343,10 @@ void MainWindow::on_tab_click(int index){
 
         ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
         ui->graphicsView_2->setChart(chart);
-        return;
+        break;
     }
+    this->ManageTab1(index);
+    return;
 }
 
 void MainWindow::on_historical_button_click(){
@@ -438,4 +449,84 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
 //    }
 //}
 
+// FRANK ADD FUNCTIONs
+void MainWindow::SetMutexsAndCondVars(void) {
+        // FRANK ADD f()
+    qDebug() << "setup mutexs and cond variables";
+    this->notfied.reset(new bool());
+    this->mutex.reset(new QMutex());
+    this->waitCondition.reset(new QWaitCondition());
 
+    this->restart.reset(new bool());
+    this->mutex2.reset(new QMutex());
+    this->waitCondition2.reset(new QWaitCondition());
+
+    this->workerTab_One = nullptr;
+}
+void MainWindow::ManageTab1(int curr_tab) {
+
+        // FRANK ADD f()
+
+    if (curr_tab == 1) {
+        //qDebug() << "manage tab one: run thread";
+        *(this->notfied) = false;
+        *(this->restart) = true;
+        if(this->workerTab_One == nullptr) {
+            qDebug() << "manage tab one: create thread";
+            this->workerTab_One = new WorkerThreadTab(this->notfied, this->mutex, this->waitCondition, this->restart, this->mutex2, this->waitCondition2);
+            //qRegisterMetaType<QList<QPair<QString, double>>>("<QList<QPair<QString, double>>>");
+            connect(this->workerTab_One, &WorkerThreadTab::signal_data_ready,
+                    this, &MainWindow::makePlotTab_One);
+            qDebug() << "manage tab one: launch thread";
+            this->workerTab_One->start();
+            //qDebug() << "temporal diagram thread created and started";
+        } else {
+            //qDebug() << "try restart thread temporal diagram";
+            qDebug() << "manage tab one: resume thread";
+            {//std::unique_lock<QMutex> _lock(*this->mutex2); //_lock.lock();
+                this->mutex2->lock();
+                  *(this->restart) = true;
+                  this->waitCondition2->wakeAll();
+                this->mutex2->unlock();
+            }
+        }
+    } else if ( this->old_tab == 1) {
+        qDebug() << "manage tab one: pause thread";
+        if (*this->restart == true) {
+            qDebug() << "manage tab one: notify - pause";
+              //std::unique_lock<QMutex> lock(*this->mutex);
+              //lock.lock();
+
+              this->mutex->lock();
+              *(this->notfied) = true;
+              *(this->restart) = false;
+              this->waitCondition->wakeAll();
+              this->mutex->unlock();
+            //qDebug() << "manage tab one: notified";
+
+        }
+    }
+}
+void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
+    if(List == nullptr) return;
+    qDebug() << "make plot tab one";
+    ui->customPlot->addGraph();
+    //ui->customPlot->setBackground(QBrush(QChart::ChartThemeBlueCerulean));
+    QVector<double> x(List->size()), y(List->size());
+    for(int i = 0; i < List->size(); i++) {
+        qDebug() << List->at(i).second;
+        y[i] = List->at(i).second;
+        x[i] = i;
+    }
+    ui->customPlot->graph(0)->setData(x, y);
+    ui->customPlot->graph()->setBrush(QBrush(QColor(166,224,230,70)));
+    ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 8));
+    // give the axes some labels:
+    ui->customPlot->xAxis->setLabel("Minutes");
+    ui->customPlot->yAxis->setLabel("Device Counted");
+    // set axes ranges, so we see all data:
+    ui->customPlot->xAxis->setRange(0, List->size());
+    ui->customPlot->yAxis->setRange(0, 15); // 0, 150
+    ui->customPlot->replot();
+    delete List;
+}

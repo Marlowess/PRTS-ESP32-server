@@ -359,3 +359,38 @@ QVector<Historical_device> MySqlConn::getHistoricalData(QString start, QString e
     }
     return vec;
 }
+
+QList<QPair<QString, double>>* MySqlConn::getNumDevicesByTimestamp(std::chrono::seconds start, std::chrono::seconds end) {
+    QList<QPair<QString, double>>* List = nullptr;
+    if ( db_m.isValid() && db_m.isOpen() ) {
+
+        //QSqlQuery query("SELECT timestamp, count(distinct mac_address_device) as total FROM probe_requests group by timestamp order by timestamp desc LIMIT 10 ;", db_m);
+        //QSqlQuery query("select timestamp, count(*) as total from devices_timestamps_pos group by timestamp order by timestamp;", db_m);
+        qDebug() << QString::fromStdString(std::to_string(start.count())) << " " << QString::fromStdString(std::to_string(end.count()));
+        QSqlQuery query(this->db_m);
+        query.prepare("select timestamp, count(*) as total "
+                                                     "from devices_timestamps_pos "
+                                                     "where timestamp > :start and timestamp < :end "
+                                                     "group by timestamp order by timestamp;");
+            query.bindValue(":start", QString::fromStdString(std::to_string(start.count())));
+            query.bindValue(":end", QString::fromStdString(std::to_string(end.count())));
+            query.exec();
+        //QSqlQuery query("select timestamp, count(*) as total from devices_timestamps_pos group by timestamp order by timestamp;", db_m);
+
+        int id_pos_x = query.record().indexOf("timestamp");
+        int id_pos_y = query.record().indexOf("total");
+        List = new QList<QPair<QString, double>>();
+        qDebug() << "== Start Result selectAll ===";
+        while (query.next()) {
+            QString timestamp = query.value(id_pos_x).toString();
+            int total = query.value(id_pos_y).toInt();
+            List->append(QPair<QString, double>(timestamp, total));
+            qDebug() << timestamp << " " << total;
+            //query.finish();
+        }
+        qDebug() << "== End Result selectAll ===";
+    } else {
+        qDebug() << "Query failed";
+    }
+    return List;
+}

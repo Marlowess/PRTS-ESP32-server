@@ -31,7 +31,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -628,6 +628,16 @@ background-color: rgb(32, 74, 135);</string>
      <attribute name="title">
       <string>Temporal Diagrams</string>
      </attribute>
+     <widget class="QCustomPlot" name="customPlot" native="true">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>0</y>
+        <width>1171</width>
+        <height>591</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
@@ -755,6 +765,12 @@ background-color: rgb(32, 74, 135);</string>
    <class>QChartView</class>
    <extends>QGraphicsView</extends>
    <header>QtCharts</header>
+  </customwidget>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
