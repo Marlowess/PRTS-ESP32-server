@@ -36,11 +36,11 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Connection between historical button and tab */
     connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_historical_button_click);
 
-    server = new Server();
-    threadGui = new WorkerThreadGui();
-    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
-    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
-    threadGui->start();
+//    server = new Server();
+//    threadGui = new WorkerThreadGui();
+//    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
+//    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+//    threadGui->start();
 
     this->SetMutexsAndCondVars();
 }
@@ -337,7 +337,7 @@ void MainWindow::on_tab_click(int index){
             tab_2_instantiate = true;
             QChart *chart = new QChart();
             chart->setTheme(QChart::ChartThemeBlueCerulean);
-            chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
+            chart->setTitle("Long time statistics");
             chart->setAnimationOptions(QChart::SeriesAnimations);
             chart->createDefaultAxes();
 
@@ -346,6 +346,7 @@ void MainWindow::on_tab_click(int index){
 
             ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
             ui->graphicsView_2->setChart(chart);
+            //connect()
         }
         break;
     }
@@ -363,7 +364,6 @@ void MainWindow::on_historical_button_click(){
     this->historical_timestamp_start = QString::number(start_timestamp.toTime_t());
     this->historical_timestamp_end = QString::number(end_timestamp.toTime_t());
 
-
     /* Here I have to put the code to retrieve infos about devices and timestamps */
     hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()));
     qRegisterMetaType<QVector<Historical_device>>("QVector<Historical_device>");
@@ -372,29 +372,15 @@ void MainWindow::on_historical_button_click(){
 }
 
 void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
-    // Here I handle and print data
-    for(int i = 0; i < vec.size(); i++)
-        qDebug() << "MAC: " << vec[i].getMacAddress() << " START:" << vec[i].getStartTimestamp() << " END: " << vec[i].getEndTimestamp() << " N_TIMES: " << vec[i].getNTimes();
 
-    //    QBoxPlotSeries *acmeSeries = new QBoxPlotSeries();
-    //    acmeSeries->setName("Acme Ltd");
+    if(vec.size() == 0) {
+        ui->label_10->setVisible(true);
+        ui->label_10->setText("NO DATA");
+        return;
+    }
 
-    //    QBoxSet *box = new QBoxSet("box1");
-    //    box->setValue(QBoxSet::LowerExtreme, 20);
-    //    box->setValue(QBoxSet::UpperExtreme, 25);
-    //    box->setValue(QBoxSet::Median, 1);
-    //    box->setValue(QBoxSet::LowerQuartile, 1);
-    //    box->setValue(QBoxSet::UpperQuartile, 1);
-
-    //    QBoxSet *box2 = new QBoxSet("box2");
-    //    box2->setValue(QBoxSet::LowerExtreme, 17);
-    //    box2->setValue(QBoxSet::UpperExtreme, 23);
-    //    box2->setValue(QBoxSet::Median, 1);
-    //    box2->setValue(QBoxSet::LowerQuartile, 1);
-    //    box2->setValue(QBoxSet::UpperQuartile, 1);
-
-    //    acmeSeries->append(box);
-    //    acmeSeries->append(box2);
+    ui->label_10->setVisible(false);
+    historical_vector = vec;
 
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
@@ -411,6 +397,8 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
     chart->axisX()->setRange(0, vec.size()+1);
     chart->axisX()->setLabelsVisible(false);
     chart->axisY()->setRange(historical_timestamp_start, historical_timestamp_end);
+    chart->axisY()->setLabelsVisible(false);
+    chart->axisY()->setTitleText("Time interval");
     //    chart->axes(Qt::Vertical).first()->setMin(historical_timestamp_start);
     //    chart->axes(Qt::Horizontal).first()->setMax(historical_timestamp_end);
 
@@ -435,24 +423,31 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
         QLineSeries *series = new QLineSeries();
         series->append(i+1, startTime);
         series->append(i+1, endTime);
-        series->setName(mac + "(" + QString::number(nTimes) + ")");
+        series->setName(mac.toUpper());
         chart->addSeries(series);
+        connect(series, &QLineSeries::clicked, this, &MainWindow::on_history_series_click);
         QPen pen = series->pen();
         pen.setWidth(5);
         series->setPen(pen);
     }
 }
 
-//qreal MainWindow::findMedian(int begin, int end){
-//    int count = end - begin;
-//    if (count % 2) {
-//        return sortedList.at(count / 2 + begin);
-//    } else {
-//        qreal right = sortedList.at(count / 2 + begin);
-//        qreal left = sortedList.at(count / 2 - 1 + begin);
-//        return (right + left) / 2.0;
-//    }
-//}
+void MainWindow::on_history_series_click(QPointF point){
+    int x = roundf(point.x()) - 1;
+    qDebug() << "CLICKED SERIES WITH X " << x;
+
+    ui->label_16->setText(historical_vector[x].getMacAddress().toUpper());
+
+    QDateTime start;
+    start.setTime_t(historical_vector[x].getStartTimestamp().toInt());
+    ui->label_17->setText(start.toString(Qt::SystemLocaleDate));
+
+    QDateTime end;
+    end.setTime_t(historical_vector[x].getEndTimestamp().toInt());
+    ui->label_19->setText(end.toString(Qt::SystemLocaleDate));
+
+    ui->label_20->setText(QString::number(historical_vector[x].getNTimes()));
+}
 
 // FRANK ADD FUNCTIONs
 void MainWindow::SetMutexsAndCondVars(void) {
@@ -519,7 +514,7 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
     //ui->customPlot->setBackground(QBrush(QChart::ChartThemeBlueCerulean));
     QVector<double> x(List->size()), y(List->size());
     for(int i = 0; i < List->size(); i++) {
-        qDebug() << List->at(i).second;
+        //qDebug() << List->at(i).second;
         y[i] = List->at(i).second;
         x[i] = i;
     }

@@ -51,6 +51,7 @@ private slots:
     void on_tab_click(int index);
     void on_historical_button_click();
     void newHistoricalDataSlot(QVector<Historical_device>);
+    void on_history_series_click(QPointF);
 
 private:
     Ui::MainWindow *ui;
@@ -58,6 +59,7 @@ private:
     WorkerThreadGui *threadGui;
     Historical_thread *hist_thread;
     QMap<QString, QVector<QString>> points_map;
+    QVector<Historical_device> historical_vector;
     void boxPlotFiller(QVector<Historical_device>, QChart *);
     QString historical_timestamp_start;
     QString historical_timestamp_end;
