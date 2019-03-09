@@ -30,8 +30,11 @@
       <height>691</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -607,7 +610,7 @@ background-color: rgb(32, 74, 135);</string>
        </font>
       </property>
       <property name="text">
-       <string>System console - version 0.8</string>
+       <string>System console - version 0.9</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_2">

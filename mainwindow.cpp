@@ -350,6 +350,10 @@ void MainWindow::on_tab_click(int index){
 
             ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
             ui->graphicsView_2->setChart(chart);
+
+            ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+            ui->dateTimeEdit_2->setDateTime(QDateTime::currentDateTime());
+
             //connect()
         }
         break;
@@ -367,6 +371,9 @@ void MainWindow::on_tab_click(int index){
 
             ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");
             ui->graphicsView_3->setChart(chart);
+
+            ui->dateTimeEdit_3->setDateTime(QDateTime::currentDateTime());
+            ui->dateTimeEdit_4->setDateTime(QDateTime::currentDateTime());
         }
 
     }
@@ -551,6 +558,8 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
     for(int i = 0; i < List->size(); i++)
         series->append(i, List->at(i).second);
 
+    series->setName("Devices");
+    series->setBrush(QBrush(QColor(166,224,230,70)));
     chart->addSeries(series);
     chart->createDefaultAxes();
     chart->axisX()->setRange(0, List->size());
@@ -629,6 +638,7 @@ void MainWindow::on_slider_movement(int value){
         series->append(devicePositions[i]);
 
     series->setPen(QPen(3));
+    series->setName("Device");
     chart->addSeries(series);
     chart->createDefaultAxes();
     chart->axisX()->setRange(X_START, X_END);
