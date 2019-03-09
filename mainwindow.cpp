@@ -433,13 +433,6 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
         int endTime = vec[i].getEndTimestamp().toInt();
         int nTimes = vec[i].getNTimes();
 
-        //        QBoxPlotSeries *series = new QBoxPlotSeries();
-        //        series->setName(mac + "(" + QString::number(nTimes) + ")");
-        //        QBoxSet *box = new QBoxSet();
-        //        box->setValue(QBoxSet::LowerExtreme, startTime);
-        //        box->setValue(QBoxSet::UpperExtreme, endTime);
-        //        series->append(box);
-        //        chart->addSeries(series);
         QLineSeries *series = new QLineSeries();
         series->append(i+1, startTime);
         series->append(i+1, endTime);
@@ -528,26 +521,42 @@ void MainWindow::ManageTab1(int curr_tab) {
     }
 }
 void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
+//    if(List == nullptr) return;
+//    qDebug() << "make plot tab one";
+//    ui->customPlot->addGraph();
+//    //ui->customPlot->setBackground(QBrush(QChart::ChartThemeBlueCerulean));
+//    QVector<double> x(List->size()), y(List->size());
+//    for(int i = 0; i < List->size(); i++) {
+//        //qDebug() << List->at(i).second;
+//        y[i] = List->at(i).second;
+//        x[i] = i;
+//    }
+//    ui->customPlot->graph(0)->setData(x, y);
+//    ui->customPlot->graph()->setBrush(QBrush(QColor(166,224,230,70)));
+//    ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 8));
+//    // give the axes some labels:
+//    ui->customPlot->xAxis->setLabel("Minutes");
+//    ui->customPlot->yAxis->setLabel("Device Counted");
+//    // set axes ranges, so we see all data:
+//    ui->customPlot->xAxis->setRange(0, List->size());
+//    ui->customPlot->yAxis->setRange(0, 15); // 0, 150
+//    ui->customPlot->replot();
+//    delete List;
+
+    QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
     if(List == nullptr) return;
-    qDebug() << "make plot tab one";
-    ui->customPlot->addGraph();
-    //ui->customPlot->setBackground(QBrush(QChart::ChartThemeBlueCerulean));
-    QVector<double> x(List->size()), y(List->size());
-    for(int i = 0; i < List->size(); i++) {
-        //qDebug() << List->at(i).second;
-        y[i] = List->at(i).second;
-        x[i] = i;
-    }
-    ui->customPlot->graph(0)->setData(x, y);
-    ui->customPlot->graph()->setBrush(QBrush(QColor(166,224,230,70)));
-    ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 8));
-    // give the axes some labels:
-    ui->customPlot->xAxis->setLabel("Minutes");
-    ui->customPlot->yAxis->setLabel("Device Counted");
-    // set axes ranges, so we see all data:
-    ui->customPlot->xAxis->setRange(0, List->size());
-    ui->customPlot->yAxis->setRange(0, 15); // 0, 150
-    ui->customPlot->replot();
+    QLineSeries *series = new QLineSeries();
+
+    for(int i = 0; i < List->size(); i++)
+        series->append(i, List->at(i).second);
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+    chart->axisX()->setRange(0, List->size());
+    chart->axisY()->setRange(0, 10);
+    ui->graphicsView_4->setChart(chart);
+    ui->graphicsView_4->setStyleSheet("background-color: rgb(255, 255, 255)}");
     delete List;
 }
 

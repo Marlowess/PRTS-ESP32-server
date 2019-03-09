@@ -51,8 +51,8 @@ QList<QPair<QString, double>>* WorkerThreadTab::doWork() {
     delta = getDeltaTime(&curr_time);
     if (delta < std::chrono::seconds(60*60*5)) {
         conn.openConn("probe_requests_db", "root", "password", "localhost", "Thread-Connection-Temporal");
-        List = conn.getNumDevicesByTimestamp(reference_time, curr_time);
-        //List = conn.getNumDevicesByTimestamp(std::chrono::seconds(1551862024), std::chrono::seconds(1551862024 + delta.count()));
+        //List = conn.getNumDevicesByTimestamp(reference_time, curr_time);
+        List = conn.getNumDevicesByTimestamp(std::chrono::seconds(1551862024), std::chrono::seconds(1551862024 + delta.count()));
     }
     return List;
 }
