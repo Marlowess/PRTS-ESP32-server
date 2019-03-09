@@ -56,6 +56,7 @@ private slots:
     void listDevicesSlot(QStringList);
     void combobox_changed_slot(QString);
     void devicesPositionsSlot(QVector<QPointF> vec);
+    void on_slider_movement(int);
 
 private:
     Ui::MainWindow *ui;

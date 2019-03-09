@@ -411,7 +411,7 @@ QStringList MySqlConn::getDevicesByTime(QString start, QString end){
         }
         int idName = query.record().indexOf("mac_address_device");
         while (query.next()) {
-            devices.append(query.value(idName).toString());
+            devices.append(query.value(idName).toString().toUpper());
         }
     }
     return devices;

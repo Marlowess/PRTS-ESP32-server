@@ -581,15 +581,49 @@ void MainWindow::combobox_changed_slot(QString device){
 
     /* Else I have to paint the point on the chart */
     hist_thread = new Historical_thread(movements_timestamp_start, movements_timestamp_end, 2);
+    connect(hist_thread, &Historical_thread::devicePositionsSignal, this, &MainWindow::devicesPositionsSlot);
     hist_thread->setMacAddress(device);
     qRegisterMetaType<QVector<QPointF>>("QVector<QPointF>");
-    connect(hist_thread, &Historical_thread::devicePositionsSignal, this, &MainWindow::devicesPositionsSlot);
     hist_thread->start();
 }
 
 void MainWindow::devicesPositionsSlot(QVector<QPointF> vec){
     this->devicePositions = vec;
-    for(int i = 0; i < vec.size(); i++){
-        qDebug() << "X: " << vec[i].x() << ", Y: " << vec[i].y();
-    }
+//    for(int i = 0; i < vec.size(); i++){
+//        qDebug() << "X: " << vec[i].x() << ", Y: " << vec[i].y();
+//    }
+//    ui->horizontalSlider->setTickInterval(vec.size());
+    ui->horizontalSlider->setMinimum(0);
+    ui->horizontalSlider->setMaximum(vec.size());
+    disconnect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
+    connect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
+}
+
+void MainWindow::on_slider_movement(int value){
+    //qDebug() << "POSITION: " << value;
+//    qDebug() << value;
+//    if(value-1 < 0) return;
+//    qDebug() << "X: " << devicePositions[value-1].x() << ", Y: " << devicePositions[value-1].y();
+
+    QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
+
+    QScatterSeries *series = new QScatterSeries();
+    //seriesDevices->setName("Devices");
+//    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+//    series->setMarkerSize(10);
+    //seriesDevices->setColor(QColor(255,128,0));
+    //seriesDevices->setPointLabelsColor(QColor(255,128,0));
+
+    for(int i = 0; i < value; i++)
+        series->append(devicePositions[i]);
+
+    series->setPen(QPen(Qt::yellow, 3));
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+    chart->axisX()->setRange(X_START, X_END);
+    chart->axisY()->setRange(Y_START, Y_END);
+    ui->graphicsView_3->setChart(chart);
+    ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");
+    ui->label_boards->setText("0");
 }
