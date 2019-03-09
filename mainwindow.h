@@ -52,6 +52,9 @@ private slots:
     void on_historical_button_click();
     void newHistoricalDataSlot(QVector<Historical_device>);
     void on_history_series_click(QPointF);
+    void on_movements_devices_click();
+    void listDevicesSlot(QStringList);
+    void combobox_changed_slot(QString);
 
 private:
     Ui::MainWindow *ui;
@@ -63,6 +66,10 @@ private:
     void boxPlotFiller(QVector<Historical_device>, QChart *);
     QString historical_timestamp_start;
     QString historical_timestamp_end;
+    QString movements_timestamp_start;
+    QString movements_timestamp_end;
+    //QStringList devicesList;
+
     qreal findMedian(int begin, int end);
 
     // FRANK ADD ATTRIBUTEs
@@ -79,6 +86,7 @@ private:
 
     int old_tab;
     bool tab_2_instantiate = false;
+    bool tab_3_instantiate = false;
 
     // FRANK ADD FUNCTIONs
     void ManageTab1(int);

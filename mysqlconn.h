@@ -28,6 +28,8 @@ public:
     QList<QPair<QString, double>>* getNumDevicesByTimestamp(std::chrono::seconds start, std::chrono::seconds end);
     QList<QPair<QString, double>>* getNumDevicesByTimestamp(void);
 
+    QStringList getDevicesByTime(QString, QString);
+
     ~MySqlConn();
 private:
     bool insertProbeRequest(const QString& probeRequest);

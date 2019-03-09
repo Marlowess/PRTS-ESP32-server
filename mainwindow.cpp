@@ -36,6 +36,9 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Connection between historical button and tab */
     connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_historical_button_click);
 
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_movements_devices_click);
+    connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::combobox_changed_slot);
+
 //    server = new Server();
 //    threadGui = new WorkerThreadGui();
 //    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
@@ -140,6 +143,7 @@ void MainWindow::on_check_5_stateChanged(){
     paintBoardsSlot();
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_5->isChecked()){
+        if(ui->lineEdit_5->text().isEmpty()) return;
         nBoards++;
         threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value(), ui->lineEdit_5->text());
         ui->X_5->setEnabled(false);
@@ -349,6 +353,22 @@ void MainWindow::on_tab_click(int index){
             //connect()
         }
         break;
+    case 3:
+        if(!tab_3_instantiate){
+            tab_3_instantiate = true;
+            QChart *chart = new QChart();
+            chart->setTheme(QChart::ChartThemeBlueCerulean);
+            chart->setTitle("Movements of devices");
+            chart->setAnimationOptions(QChart::SeriesAnimations);
+            chart->createDefaultAxes();
+
+            chart->legend()->setVisible(true);
+            chart->legend()->setAlignment(Qt::AlignBottom);
+
+            ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");
+            ui->graphicsView_3->setChart(chart);
+        }
+
     }
     this->old_tab = index;
     this->ManageTab1(index);
@@ -365,7 +385,7 @@ void MainWindow::on_historical_button_click(){
     this->historical_timestamp_end = QString::number(end_timestamp.toTime_t());
 
     /* Here I have to put the code to retrieve infos about devices and timestamps */
-    hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()));
+    hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()), 0);
     qRegisterMetaType<QVector<Historical_device>>("QVector<Historical_device>");
     connect(hist_thread, &Historical_thread::newDataSignal, this, &MainWindow::newHistoricalDataSlot);
     hist_thread->start();
@@ -529,4 +549,32 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
     ui->customPlot->yAxis->setRange(0, 15); // 0, 150
     ui->customPlot->replot();
     delete List;
+}
+
+
+void MainWindow::on_movements_devices_click(){
+    QDateTime start_timestamp = ui->dateTimeEdit_3->dateTime();
+    QDateTime end_timestamp = ui->dateTimeEdit_4->dateTime();
+
+    this->movements_timestamp_start = QString::number(start_timestamp.toTime_t());
+    this->movements_timestamp_end = QString::number(end_timestamp.toTime_t());
+
+    /* Here I have to put the code to retrieve infos about devices and timestamps */
+    hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()), 1);
+    //qRegisterMetaType<QVector<Historical_device>>("QVector<Historical_device>");
+    connect(hist_thread, &Historical_thread::devicesListSignal, this, &MainWindow::listDevicesSlot);
+    hist_thread->start();
+}
+
+
+void MainWindow::listDevicesSlot(QStringList list){
+//    this->devicesList = list;
+//    for(int i = 0; i < list.size(); i++)
+//        qDebug() << "DEVICE: " << list[i];
+    ui->comboBox->clear();
+    ui->comboBox->addItems(list);
+}
+
+void MainWindow::combobox_changed_slot(QString device){
+    qDebug() << "DEVICE: " << device;
 }

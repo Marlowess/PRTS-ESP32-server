@@ -394,3 +394,34 @@ QList<QPair<QString, double>>* MySqlConn::getNumDevicesByTimestamp(std::chrono::
     }
     return List;
 }
+
+/** This method returns all devices scanned among the defined time interval **/
+QStringList MySqlConn::getDevicesByTime(QString start, QString end){
+    QStringList devices;
+    devices.append("-");
+    QString query_string("select distinct mac_address_device "
+                                   "from devices_timestamps_pos "
+                                   "where timestamp > " + start + " and timestamp < " + end + ";");
+
+    if ( db_m.isValid() && db_m.isOpen() ) {
+        QSqlQuery query(query_string, db_m);
+        if (!query.exec()){
+              qDebug() << query.lastError();
+              return devices;
+        }
+        int idName = query.record().indexOf("mac_address_device");
+        while (query.next()) {
+            devices.append(query.value(idName).toString());
+        }
+    }
+    return devices;
+}
+
+
+
+
+
+
+
+
+
