@@ -11,9 +11,11 @@ class Historical_thread  : public QThread{
 public:
     Historical_thread(QString, QString, int);
     void run() override;
+    void setMacAddress(QString);
 private:
     QString start_time;
     QString end_time;
+    QString mac;
 
 /*
     0 means historical data
@@ -24,6 +26,7 @@ private:
 signals:
     void newDataSignal(QVector<Historical_device>);
     void devicesListSignal(QStringList);
+    void devicePositionsSignal(QVector<QPointF>);
 };
 
 #endif // HISTORICAL_THREAD_H

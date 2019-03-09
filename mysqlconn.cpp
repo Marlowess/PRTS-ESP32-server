@@ -417,6 +417,27 @@ QStringList MySqlConn::getDevicesByTime(QString start, QString end){
     return devices;
 }
 
+QVector<QPointF> MySqlConn::getPositionsByDevice(QString start, QString end, QString mac){
+    QVector<QPointF> positions;
+    QString query_string("select distinct pos_x, pos_y "
+                           "from devices_timestamps_pos "
+                           "where timestamp > " + start + " and timestamp < " + end + " "
+                           "and mac_address_device = '" + mac + "';");
+
+    if ( db_m.isValid() && db_m.isOpen() ) {
+        QSqlQuery query(query_string, db_m);
+        if (!query.exec()){
+              qDebug() << query.lastError();
+              return positions;
+        }
+        int idX = query.record().indexOf("pos_x");
+        int idY = query.record().indexOf("pos_y");
+        while (query.next()) {
+            positions.append(QPointF(query.value(idX).toFloat(), query.value(idY).toFloat()));
+        }
+    }
+    return positions;
+}
 
 
 

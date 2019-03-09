@@ -29,6 +29,7 @@ public:
     QList<QPair<QString, double>>* getNumDevicesByTimestamp(void);
 
     QStringList getDevicesByTime(QString, QString);
+    QVector<QPointF> getPositionsByDevice(QString, QString, QString);
 
     ~MySqlConn();
 private:

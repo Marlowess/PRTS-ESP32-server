@@ -55,6 +55,7 @@ private slots:
     void on_movements_devices_click();
     void listDevicesSlot(QStringList);
     void combobox_changed_slot(QString);
+    void devicesPositionsSlot(QVector<QPointF> vec);
 
 private:
     Ui::MainWindow *ui;
@@ -69,6 +70,7 @@ private:
     QString movements_timestamp_start;
     QString movements_timestamp_end;
     //QStringList devicesList;
+    QVector<QPointF> devicePositions;
 
     qreal findMedian(int begin, int end);
 

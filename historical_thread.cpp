@@ -23,8 +23,17 @@ void Historical_thread::run(){
         emit devicesListSignal(devices);
         break;
     }
+    case 2:{
+        QVector<QPointF> points = connection.getPositionsByDevice(this->start_time, this->end_time, this->mac);
+        emit devicePositionsSignal(points);
+        break;
+    }
     default:
         return;
     }
 
+}
+
+void Historical_thread::setMacAddress(QString device){
+    this->mac = device;
 }

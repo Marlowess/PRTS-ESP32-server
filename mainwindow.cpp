@@ -577,4 +577,19 @@ void MainWindow::listDevicesSlot(QStringList list){
 
 void MainWindow::combobox_changed_slot(QString device){
     qDebug() << "DEVICE: " << device;
+    if(device.isEmpty() || !QString::compare(device, "-")) return;
+
+    /* Else I have to paint the point on the chart */
+    hist_thread = new Historical_thread(movements_timestamp_start, movements_timestamp_end, 2);
+    hist_thread->setMacAddress(device);
+    qRegisterMetaType<QVector<QPointF>>("QVector<QPointF>");
+    connect(hist_thread, &Historical_thread::devicePositionsSignal, this, &MainWindow::devicesPositionsSlot);
+    hist_thread->start();
+}
+
+void MainWindow::devicesPositionsSlot(QVector<QPointF> vec){
+    this->devicePositions = vec;
+    for(int i = 0; i < vec.size(); i++){
+        qDebug() << "X: " << vec[i].x() << ", Y: " << vec[i].y();
+    }
 }
