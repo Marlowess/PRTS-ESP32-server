@@ -1,8 +1,9 @@
 #include "historical_thread.h"
 
-Historical_thread::Historical_thread(QString start, QString end){
+Historical_thread::Historical_thread(QString start, QString end, int activity_type){
     this->start_time = start;
     this->end_time = end;
+    this->activity_type = activity_type;
 }
 
 void Historical_thread::run(){
@@ -11,6 +12,28 @@ void Historical_thread::run(){
     unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
     connection.openConn("probe_requests_db", "root", "password", "localhost", QString::number(now) + qrand());
 
-    QVector<Historical_device> vec_device = connection.getHistoricalData(this->start_time, this->end_time);
-    emit newDataSignal(vec_device);
+    switch (activity_type) {
+    case 0:{
+        QVector<Historical_device> vec_device = connection.getHistoricalData(this->start_time, this->end_time);
+        emit newDataSignal(vec_device);
+        break;
+    }
+    case 1:{
+        QStringList devices = connection.getDevicesByTime(this->start_time, this->end_time);
+        emit devicesListSignal(devices);
+        break;
+    }
+    case 2:{
+        QVector<QPointF> points = connection.getPositionsByDevice(this->start_time, this->end_time, this->mac);
+        emit devicePositionsSignal(points);
+        break;
+    }
+    default:
+        return;
+    }
+
+}
+
+void Historical_thread::setMacAddress(QString device){
+    this->mac = device;
 }

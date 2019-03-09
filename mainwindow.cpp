@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "qcustomplot.h"
 
 #define X_START -6
 #define X_END 6
@@ -32,13 +33,19 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Connection to tabWidgets */
     connect(ui->tabWidget, &QTabWidget::tabBarClicked, this, &MainWindow::on_tab_click);
 
-    /*
-    server = new Server();
-    threadGui = new WorkerThreadGui();
-    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
-    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
-    threadGui->start();
-    */
+    /* Connection between historical button and tab */
+    connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_historical_button_click);
+
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_movements_devices_click);
+    connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::combobox_changed_slot);
+
+//    server = new Server();
+//    threadGui = new WorkerThreadGui();
+//    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
+//    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+//    threadGui->start();
+
+    this->SetMutexsAndCondVars();
 }
 
 void MainWindow::initializeChart(){
@@ -70,6 +77,9 @@ void MainWindow::initializeChart(){
 }
 
 MainWindow::~MainWindow(){
+    if(workerTab_One != nullptr) {
+        delete  workerTab_One;
+    }
     delete ui;
 }
 
@@ -133,6 +143,7 @@ void MainWindow::on_check_5_stateChanged(){
     paintBoardsSlot();
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_5->isChecked()){
+        if(ui->lineEdit_5->text().isEmpty()) return;
         nBoards++;
         threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value(), ui->lineEdit_5->text());
         ui->X_5->setEnabled(false);
@@ -320,22 +331,55 @@ void MainWindow::on_tab_click(int index){
     case 0:
         break;
     case 1:
-        break;
-    case 2:
-        connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_historical_button_click);
-        QChart *chart = new QChart();
-        chart->setTheme(QChart::ChartThemeBlueCerulean);
-        chart->setTitle("Acme Ltd and BoxWhisk Inc share deviation in 2012");
-        chart->setAnimationOptions(QChart::SeriesAnimations);
-        chart->createDefaultAxes();
-
-        chart->legend()->setVisible(true);
-        chart->legend()->setAlignment(Qt::AlignBottom);
-
-        ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
-        ui->graphicsView_2->setChart(chart);
+        this->ManageTab1(index);
+        //break;
+        this->old_tab = index;
         return;
+    case 2:
+        //if(old_tab == 2) break;
+        if(!tab_2_instantiate){
+            tab_2_instantiate = true;
+            QChart *chart = new QChart();
+            chart->setTheme(QChart::ChartThemeBlueCerulean);
+            chart->setTitle("Long time statistics");
+            chart->setAnimationOptions(QChart::SeriesAnimations);
+            chart->createDefaultAxes();
+
+            chart->legend()->setVisible(true);
+            chart->legend()->setAlignment(Qt::AlignBottom);
+
+            ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
+            ui->graphicsView_2->setChart(chart);
+
+            ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+            ui->dateTimeEdit_2->setDateTime(QDateTime::currentDateTime());
+
+            //connect()
+        }
+        break;
+    case 3:
+        if(!tab_3_instantiate){
+            tab_3_instantiate = true;
+            QChart *chart = new QChart();
+            chart->setTheme(QChart::ChartThemeBlueCerulean);
+            chart->setTitle("Movements of devices");
+            chart->setAnimationOptions(QChart::SeriesAnimations);
+            chart->createDefaultAxes();
+
+            chart->legend()->setVisible(true);
+            chart->legend()->setAlignment(Qt::AlignBottom);
+
+            ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");
+            ui->graphicsView_3->setChart(chart);
+
+            ui->dateTimeEdit_3->setDateTime(QDateTime::currentDateTime());
+            ui->dateTimeEdit_4->setDateTime(QDateTime::currentDateTime());
+        }
+
     }
+    this->old_tab = index;
+    this->ManageTab1(index);
+    return;
 }
 
 void MainWindow::on_historical_button_click(){
@@ -347,42 +391,27 @@ void MainWindow::on_historical_button_click(){
     this->historical_timestamp_start = QString::number(start_timestamp.toTime_t());
     this->historical_timestamp_end = QString::number(end_timestamp.toTime_t());
 
-
     /* Here I have to put the code to retrieve infos about devices and timestamps */
-    hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()));
+    hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()), 0);
     qRegisterMetaType<QVector<Historical_device>>("QVector<Historical_device>");
     connect(hist_thread, &Historical_thread::newDataSignal, this, &MainWindow::newHistoricalDataSlot);
     hist_thread->start();
 }
 
 void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
-    // Here I handle and print data
-    for(int i = 0; i < vec.size(); i++)
-        qDebug() << "MAC: " << vec[i].getMacAddress() << " START:" << vec[i].getStartTimestamp() << " END: " << vec[i].getEndTimestamp() << " N_TIMES: " << vec[i].getNTimes();
 
-//    QBoxPlotSeries *acmeSeries = new QBoxPlotSeries();
-//    acmeSeries->setName("Acme Ltd");
+    if(vec.size() == 0) {
+        ui->label_10->setVisible(true);
+        ui->label_10->setText("NO DATA");
+        return;
+    }
 
-//    QBoxSet *box = new QBoxSet("box1");
-//    box->setValue(QBoxSet::LowerExtreme, 20);
-//    box->setValue(QBoxSet::UpperExtreme, 25);
-//    box->setValue(QBoxSet::Median, 1);
-//    box->setValue(QBoxSet::LowerQuartile, 1);
-//    box->setValue(QBoxSet::UpperQuartile, 1);
-
-//    QBoxSet *box2 = new QBoxSet("box2");
-//    box2->setValue(QBoxSet::LowerExtreme, 17);
-//    box2->setValue(QBoxSet::UpperExtreme, 23);
-//    box2->setValue(QBoxSet::Median, 1);
-//    box2->setValue(QBoxSet::LowerQuartile, 1);
-//    box2->setValue(QBoxSet::UpperQuartile, 1);
-
-//    acmeSeries->append(box);
-//    acmeSeries->append(box2);
+    ui->label_10->setVisible(false);
+    historical_vector = vec;
 
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
-//    chart->addSeries(acmeSeries);
+    //    chart->addSeries(acmeSeries);
     chart->setTitle("Historical Data");
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
@@ -395,8 +424,10 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
     chart->axisX()->setRange(0, vec.size()+1);
     chart->axisX()->setLabelsVisible(false);
     chart->axisY()->setRange(historical_timestamp_start, historical_timestamp_end);
-//    chart->axes(Qt::Vertical).first()->setMin(historical_timestamp_start);
-//    chart->axes(Qt::Horizontal).first()->setMax(historical_timestamp_end);
+    chart->axisY()->setLabelsVisible(false);
+    chart->axisY()->setTitleText("Time interval");
+    //    chart->axes(Qt::Vertical).first()->setMin(historical_timestamp_start);
+    //    chart->axes(Qt::Horizontal).first()->setMax(historical_timestamp_end);
 
     ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
     ui->graphicsView_2->setChart(chart);
@@ -409,33 +440,210 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
         int endTime = vec[i].getEndTimestamp().toInt();
         int nTimes = vec[i].getNTimes();
 
-//        QBoxPlotSeries *series = new QBoxPlotSeries();
-//        series->setName(mac + "(" + QString::number(nTimes) + ")");
-//        QBoxSet *box = new QBoxSet();
-//        box->setValue(QBoxSet::LowerExtreme, startTime);
-//        box->setValue(QBoxSet::UpperExtreme, endTime);
-//        series->append(box);
-//        chart->addSeries(series);
         QLineSeries *series = new QLineSeries();
         series->append(i+1, startTime);
         series->append(i+1, endTime);
-        series->setName(mac + "(" + QString::number(nTimes) + ")");
+        series->setName(mac.toUpper());
         chart->addSeries(series);
+        connect(series, &QLineSeries::clicked, this, &MainWindow::on_history_series_click);
         QPen pen = series->pen();
         pen.setWidth(5);
         series->setPen(pen);
     }
 }
 
-//qreal MainWindow::findMedian(int begin, int end){
-//    int count = end - begin;
-//    if (count % 2) {
-//        return sortedList.at(count / 2 + begin);
-//    } else {
-//        qreal right = sortedList.at(count / 2 + begin);
-//        qreal left = sortedList.at(count / 2 - 1 + begin);
-//        return (right + left) / 2.0;
+void MainWindow::on_history_series_click(QPointF point){
+    int x = roundf(point.x()) - 1;
+    qDebug() << "CLICKED SERIES WITH X " << x;
+
+    ui->label_16->setText(historical_vector[x].getMacAddress().toUpper());
+
+    QDateTime start;
+    start.setTime_t(historical_vector[x].getStartTimestamp().toInt());
+    ui->label_17->setText(start.toString(Qt::SystemLocaleDate));
+
+    QDateTime end;
+    end.setTime_t(historical_vector[x].getEndTimestamp().toInt());
+    ui->label_19->setText(end.toString(Qt::SystemLocaleDate));
+
+    ui->label_20->setText(QString::number(historical_vector[x].getNTimes()));
+}
+
+// FRANK ADD FUNCTIONs
+void MainWindow::SetMutexsAndCondVars(void) {
+    // FRANK ADD f()
+    qDebug() << "setup mutexs and cond variables";
+    this->notfied.reset(new bool());
+    this->mutex.reset(new QMutex());
+    this->waitCondition.reset(new QWaitCondition());
+
+    this->restart.reset(new bool());
+    this->mutex2.reset(new QMutex());
+    this->waitCondition2.reset(new QWaitCondition());
+
+    this->workerTab_One = nullptr;
+}
+void MainWindow::ManageTab1(int curr_tab) {
+
+    // FRANK ADD f()
+
+    if (curr_tab == 1) {
+        //qDebug() << "manage tab one: run thread";
+        *(this->notfied) = false;
+        *(this->restart) = true;
+        if(this->workerTab_One == nullptr) {
+            qDebug() << "manage tab one: create thread";
+            this->workerTab_One = new WorkerThreadTab(this->notfied, this->mutex, this->waitCondition, this->restart, this->mutex2, this->waitCondition2);
+            //qRegisterMetaType<QList<QPair<QString, double>>>("<QList<QPair<QString, double>>>");
+            connect(this->workerTab_One, &WorkerThreadTab::signal_data_ready,
+                    this, &MainWindow::makePlotTab_One);
+            qDebug() << "manage tab one: launch thread";
+            this->workerTab_One->start();
+            //qDebug() << "temporal diagram thread created and started";
+        } else {
+            //qDebug() << "try restart thread temporal diagram";
+            qDebug() << "manage tab one: resume thread";
+            {//std::unique_lock<QMutex> _lock(*this->mutex2); //_lock.lock();
+                this->mutex2->lock();
+                *(this->restart) = true;
+                this->waitCondition2->wakeAll();
+                this->mutex2->unlock();
+            }
+        }
+    } else if ( this->old_tab == 1) {
+        qDebug() << "manage tab one: pause thread";
+        if (*this->restart == true) {
+            qDebug() << "manage tab one: notify - pause";
+            //std::unique_lock<QMutex> lock(*this->mutex);
+            //lock.lock();
+
+            this->mutex->lock();
+            *(this->notfied) = true;
+            *(this->restart) = false;
+            this->waitCondition->wakeAll();
+            this->mutex->unlock();
+            //qDebug() << "manage tab one: notified";
+
+        }
+    }
+}
+void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
+//    if(List == nullptr) return;
+//    qDebug() << "make plot tab one";
+//    ui->customPlot->addGraph();
+//    //ui->customPlot->setBackground(QBrush(QChart::ChartThemeBlueCerulean));
+//    QVector<double> x(List->size()), y(List->size());
+//    for(int i = 0; i < List->size(); i++) {
+//        //qDebug() << List->at(i).second;
+//        y[i] = List->at(i).second;
+//        x[i] = i;
 //    }
-//}
+//    ui->customPlot->graph(0)->setData(x, y);
+//    ui->customPlot->graph()->setBrush(QBrush(QColor(166,224,230,70)));
+//    ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 8));
+//    // give the axes some labels:
+//    ui->customPlot->xAxis->setLabel("Minutes");
+//    ui->customPlot->yAxis->setLabel("Device Counted");
+//    // set axes ranges, so we see all data:
+//    ui->customPlot->xAxis->setRange(0, List->size());
+//    ui->customPlot->yAxis->setRange(0, 15); // 0, 150
+//    ui->customPlot->replot();
+//    delete List;
+
+    QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
+    if(List == nullptr) return;
+    QLineSeries *series = new QLineSeries();
+
+    for(int i = 0; i < List->size(); i++)
+        series->append(i, List->at(i).second);
+
+    series->setName("Devices");
+    series->setBrush(QBrush(QColor(166,224,230,70)));
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+    chart->axisX()->setRange(0, List->size());
+    chart->axisY()->setRange(0, 10);
+    ui->graphicsView_4->setChart(chart);
+    ui->graphicsView_4->setStyleSheet("background-color: rgb(255, 255, 255)}");
+    delete List;
+}
 
 
+void MainWindow::on_movements_devices_click(){
+    QDateTime start_timestamp = ui->dateTimeEdit_3->dateTime();
+    QDateTime end_timestamp = ui->dateTimeEdit_4->dateTime();
+
+    this->movements_timestamp_start = QString::number(start_timestamp.toTime_t());
+    this->movements_timestamp_end = QString::number(end_timestamp.toTime_t());
+
+    /* Here I have to put the code to retrieve infos about devices and timestamps */
+    hist_thread = new Historical_thread(QString::number(start_timestamp.toTime_t()), QString::number(end_timestamp.toTime_t()), 1);
+    //qRegisterMetaType<QVector<Historical_device>>("QVector<Historical_device>");
+    connect(hist_thread, &Historical_thread::devicesListSignal, this, &MainWindow::listDevicesSlot);
+    hist_thread->start();
+}
+
+
+void MainWindow::listDevicesSlot(QStringList list){
+//    this->devicesList = list;
+//    for(int i = 0; i < list.size(); i++)
+//        qDebug() << "DEVICE: " << list[i];
+    ui->comboBox->clear();
+    ui->comboBox->addItems(list);
+}
+
+void MainWindow::combobox_changed_slot(QString device){
+    qDebug() << "DEVICE: " << device;
+    if(device.isEmpty() || !QString::compare(device, "-")) return;
+
+    /* Else I have to paint the point on the chart */
+    hist_thread = new Historical_thread(movements_timestamp_start, movements_timestamp_end, 2);
+    connect(hist_thread, &Historical_thread::devicePositionsSignal, this, &MainWindow::devicesPositionsSlot);
+    hist_thread->setMacAddress(device);
+    qRegisterMetaType<QVector<QPointF>>("QVector<QPointF>");
+    hist_thread->start();
+}
+
+void MainWindow::devicesPositionsSlot(QVector<QPointF> vec){
+    this->devicePositions = vec;
+//    for(int i = 0; i < vec.size(); i++){
+//        qDebug() << "X: " << vec[i].x() << ", Y: " << vec[i].y();
+//    }
+//    ui->horizontalSlider->setTickInterval(vec.size());
+    ui->horizontalSlider->setMinimum(0);
+    ui->horizontalSlider->setMaximum(vec.size());
+    ui->horizontalSlider->setValue(0);
+    disconnect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
+    connect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
+}
+
+void MainWindow::on_slider_movement(int value){
+    //qDebug() << "POSITION: " << value;
+//    qDebug() << value;
+//    if(value-1 < 0) return;
+//    qDebug() << "X: " << devicePositions[value-1].x() << ", Y: " << devicePositions[value-1].y();
+
+    QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
+
+    QScatterSeries *series = new QScatterSeries();
+    //seriesDevices->setName("Devices");
+//    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+//    series->setMarkerSize(10);
+    //seriesDevices->setColor(QColor(255,128,0));
+    //seriesDevices->setPointLabelsColor(QColor(255,128,0));
+
+    for(int i = 0; i < value; i++)
+        series->append(devicePositions[i]);
+
+    series->setPen(QPen(3));
+    series->setName("Device");
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+    chart->axisX()->setRange(X_START, X_END);
+    chart->axisY()->setRange(Y_START, Y_END);
+    ui->graphicsView_3->setChart(chart);
+    ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");
+    ui->label_boards->setText("0");
+}

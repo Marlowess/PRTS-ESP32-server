@@ -24,6 +24,13 @@ public:
     bool insert_positions_data(QString mac, QString timestamp, float x, float y);
     QVector<Historical_device> getHistoricalData(QString start, QString end);
     bool delete_table(QString time);
+
+    QList<QPair<QString, double>>* getNumDevicesByTimestamp(std::chrono::seconds start, std::chrono::seconds end);
+    QList<QPair<QString, double>>* getNumDevicesByTimestamp(void);
+
+    QStringList getDevicesByTime(QString, QString);
+    QVector<QPointF> getPositionsByDevice(QString, QString, QString);
+
     ~MySqlConn();
 private:
     bool insertProbeRequest(const QString& probeRequest);
