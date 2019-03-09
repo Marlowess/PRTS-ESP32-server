@@ -595,6 +595,7 @@ void MainWindow::devicesPositionsSlot(QVector<QPointF> vec){
 //    ui->horizontalSlider->setTickInterval(vec.size());
     ui->horizontalSlider->setMinimum(0);
     ui->horizontalSlider->setMaximum(vec.size());
+    ui->horizontalSlider->setValue(0);
     disconnect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
     connect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
 }
@@ -618,7 +619,7 @@ void MainWindow::on_slider_movement(int value){
     for(int i = 0; i < value; i++)
         series->append(devicePositions[i]);
 
-    series->setPen(QPen(Qt::yellow, 3));
+    series->setPen(QPen(3));
     chart->addSeries(series);
     chart->createDefaultAxes();
     chart->axisX()->setRange(X_START, X_END);
