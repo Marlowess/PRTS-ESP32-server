@@ -143,7 +143,7 @@ void MainWindow::on_check_5_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_5->isChecked()){
         if(ui->lineEdit_5->text().isEmpty()
-                || !ui->X_5->value() || !ui->Y_5->value()){
+                || (!ui->X_5->value() && !ui->Y_5->value())){
             return;
         }
         nBoards++;
@@ -155,7 +155,7 @@ void MainWindow::on_check_5_stateChanged(){
     }
     else{
         if(ui->lineEdit_5->text().isEmpty()
-                || !ui->X_5->value() || !ui->Y_5->value()){
+                || (!ui->X_5->value() && !ui->Y_5->value())){
             return;
         }
         nBoards--;
@@ -173,7 +173,7 @@ void MainWindow::on_check_6_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_6->isChecked()){
         if(ui->lineEdit_6->text().isEmpty()
-                || !ui->X_6->value() || !ui->Y_6->value()){
+                || (!ui->X_6->value() && !ui->Y_6->value())){
             return;
         }
         nBoards++;
@@ -184,7 +184,7 @@ void MainWindow::on_check_6_stateChanged(){
     }
     else{
         if(ui->lineEdit_6->text().isEmpty()
-                || !ui->X_6->value() || !ui->Y_6->value()){
+                || (!ui->X_6->value() && !ui->Y_6->value())){
             return;
         }
         nBoards--;
@@ -202,7 +202,7 @@ void MainWindow::on_check_7_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_7->isChecked()){
         if(ui->lineEdit_7->text().isEmpty()
-                || !ui->X_7->value() || !ui->Y_7->value()){
+                || (!ui->X_7->value() && !ui->Y_7->value())){
             return;
         }
         nBoards++;
@@ -213,7 +213,7 @@ void MainWindow::on_check_7_stateChanged(){
     }
     else{
         if(ui->lineEdit_7->text().isEmpty()
-                || !ui->X_7->value() || !ui->Y_7->value()){
+                || (!ui->X_7->value() && !ui->Y_7->value())){
             return;
         }
         nBoards--;
@@ -231,7 +231,7 @@ void MainWindow::on_check_8_stateChanged(){
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_8->isChecked()){
         if(ui->lineEdit_8->text().isEmpty()
-                || !ui->X_8->value() || !ui->Y_8->value()){
+                || (!ui->X_8->value() && !ui->Y_8->value())){
             return;
         }
         nBoards++;
@@ -242,7 +242,7 @@ void MainWindow::on_check_8_stateChanged(){
     }
     else{
         if(ui->lineEdit_8->text().isEmpty()
-                || !ui->X_8->value() || !ui->Y_8->value()){
+                || (!ui->X_8->value() && !ui->Y_8->value())){
             return;
         }
         nBoards--;
@@ -585,17 +585,31 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
 
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
-    if(List == nullptr) return;
-    QLineSeries *series = new QLineSeries();
+    if(List == nullptr) {
+        return;
+    }
 
-    for(int i = 1; i < List->size(); i++)
-        series->append(i, List->at(i).second);
+    QLineSeries *series = new QLineSeries();   
+    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+    int i = 1;
+    for(; i < List->size(); i++)
+        series->append(i-1, List->at(i).second);
+
+    unsigned long diff;
+    if(i == 1)
+        diff = now - List->at(List->size()-1).second;
+    else
+        diff = now - List->at(List->size()-1).first.toInt();
+
+    for(int j = 0; j < diff; j++)
+        series->append(i+j-1, 0);
+
 
     series->setName("Devices");
     series->setBrush(QBrush(QColor(166,224,230,70)));
     chart->addSeries(series);
     chart->createDefaultAxes();
-    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+
     chart->axisX()->setRange(0, (int)now - List->at(0).second);
     chart->axisY()->setRange(0, 10);
     ui->graphicsView_4->setChart(chart);
@@ -678,6 +692,5 @@ void MainWindow::on_slider_movement(int value){
     chart->axisX()->setRange(X_START, X_END);
     chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView_3->setChart(chart);
-    ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");
-    ui->label_boards->setText("0");
+    ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");    
 }

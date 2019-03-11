@@ -380,13 +380,13 @@ QList<QPair<QString, double>>* MySqlConn::getNumDevicesByTimestamp(std::chrono::
         int id_pos_x = query.record().indexOf("timestamp");
         int id_pos_y = query.record().indexOf("total");
         List = new QList<QPair<QString, double>>();
-        qDebug() << "== Start Result selectAll ===";
+        qDebug() << "== Start Result selectAll ===";        
         while (query.next()) {
             QString timestamp = query.value(id_pos_x).toString();
             int total = query.value(id_pos_y).toInt();
             List->append(QPair<QString, double>(timestamp, total));
             qDebug() << timestamp << " " << total;
-            //query.finish();
+            //query.finish();           
         }
         qDebug() << "== End Result selectAll ===";
     } else {

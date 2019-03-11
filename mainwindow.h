@@ -31,6 +31,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     void initializeChart();
+    int listSize = 1;
     ~MainWindow();
 
 signals:
@@ -95,6 +96,7 @@ private:
     void ManageTab1(int);
     void SetMutexsAndCondVars(void);
     void makePlotTab_One(QList<QPair<QString, double>>*);
+
 };
 
 #endif // MAINWINDOW_H
