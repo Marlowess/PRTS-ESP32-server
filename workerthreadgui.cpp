@@ -6,14 +6,14 @@ WorkerThreadGui::WorkerThreadGui(){
 }
 
 void WorkerThreadGui::run() {
-    bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost", "Thread-Connection-Gui");
+    bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost", "Thread-Connection-Gui");    
     calculator = std::make_shared<CalculatorDistance>();
     //CalculatorDistance *c = new CalculatorDistance();
     //bool res = this->msconn.openConn("probe_requests_db", "root", "password", "localhost");
     if (res == true) {
         while(true) {
             sleep(2);
-            qDebug() << "YEEEEEEEEEEEEEEEEEE";
+            //qDebug() << "YEEEEEEEEEEEEEEEEEE";
             //calculator->printBoardPositions();
             emit paintDevicesSignal(this->msconn.selectAll(calculator));
             //qDebug() << "Go sleeping 5 seconds...";

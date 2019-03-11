@@ -590,19 +590,24 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
     }
 
     QLineSeries *series = new QLineSeries();   
-    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+    //unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+    //std::chrono::seconds now = std::chrono::seconds(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000)-20);
     int i = 1;
-    for(; i < List->size(); i++)
-        series->append(i-1, List->at(i).second);
+    for(; i < List->size(); i++){
+        int reference = List->at(0).second;
+        int time = List->at(i).first.toInt();
+        series->append((time - reference)%300, List->at(i).second);
+    }
 
-    unsigned long diff;
-    if(i == 1)
-        diff = now - List->at(List->size()-1).second;
-    else
-        diff = now - List->at(List->size()-1).first.toInt();
 
-    for(int j = 0; j < diff; j++)
-        series->append(i+j-1, 0);
+//    unsigned long diff;
+//    if(i == 1)
+//        diff = now.count() - List->at(List->size()-1).second;
+//    else
+//        diff = now.count() - List->at(List->size()-1).first.toInt();
+
+//    for(int j = 0; j < diff; j++)
+//        series->append(i+j-1, 0);
 
 
     series->setName("Devices");
@@ -610,7 +615,8 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
     chart->addSeries(series);
     chart->createDefaultAxes();
 
-    chart->axisX()->setRange(0, (int)now - List->at(0).second);
+    //chart->axisX()->setRange(0, (int)now - List->at(0).second);
+    chart->axisX()->setRange(0, 300);
     chart->axisY()->setRange(0, 10);
     ui->graphicsView_4->setChart(chart);
     ui->graphicsView_4->setStyleSheet("background-color: rgb(255, 255, 255)}");

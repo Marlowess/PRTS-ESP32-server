@@ -439,6 +439,9 @@ QVector<QPointF> MySqlConn::getPositionsByDevice(QString start, QString end, QSt
     return positions;
 }
 
+bool MySqlConn::closeConn(){
+    db_m.close();
+}
 
 
 

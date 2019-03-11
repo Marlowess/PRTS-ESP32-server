@@ -32,6 +32,8 @@ void Historical_thread::run(){
         return;
     }
 
+    connection.closeConn();
+
 }
 
 void Historical_thread::setMacAddress(QString device){

@@ -3,7 +3,7 @@
 
 void WorkerThreadTab::run() {
 
-    unsigned long time = 500;
+    unsigned long time = 1000;
     while(true) {
         //mutex->lock();
         while(!*notified) {
@@ -22,6 +22,7 @@ void WorkerThreadTab::run() {
             }
             //qDebug() << "new iteration";
         }
+        conn.closeConn();
         mutex->unlock();
         bool res2 = false;
 
@@ -49,7 +50,7 @@ QList<QPair<QString, double>>* WorkerThreadTab::doWork() {
     std::chrono::seconds curr_time, delta;
     QList<QPair<QString, double>>* List = nullptr;    
     delta = getDeltaTime(&curr_time);
-    if (delta < std::chrono::seconds(60)) {
+    if (delta < std::chrono::seconds(60*5)) {
         conn.openConn("probe_requests_db", "root", "password", "localhost", "Thread-Connection-Temporal");
         List = conn.getNumDevicesByTimestamp(reference_time, curr_time);
         //List = conn.getNumDevicesByTimestamp(std::chrono::seconds(1551862024), std::chrono::seconds(1551862024 + delta.count()));

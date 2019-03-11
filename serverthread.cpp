@@ -60,6 +60,8 @@ void ServerThread::run(){
         qDebug() << "Packet received" << endl;
     }
 
+    connection.closeConn();
+
     /* This section is reached if the board has been disconnected from server */
     qDebug() << "The error is: " << tcpSocket.errorString() << endl;
     tcpSocket.disconnectFromHost();
