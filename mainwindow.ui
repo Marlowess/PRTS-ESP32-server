@@ -34,7 +34,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -639,6 +639,15 @@ background-color: rgb(32, 74, 135);</string>
         <width>1171</width>
         <height>20</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(204, 0, 0);</string>
       </property>
       <property name="text">
        <string>This plot shows the most frequent devices scanned in the last five minutes.</string>

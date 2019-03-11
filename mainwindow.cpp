@@ -555,14 +555,15 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
     if(List == nullptr) return;
     QLineSeries *series = new QLineSeries();
 
-    for(int i = 0; i < List->size(); i++)
+    for(int i = 1; i < List->size(); i++)
         series->append(i, List->at(i).second);
 
     series->setName("Devices");
     series->setBrush(QBrush(QColor(166,224,230,70)));
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(0, List->size());
+    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+    chart->axisX()->setRange(0, (int)now - List->at(0).second);
     chart->axisY()->setRange(0, 10);
     ui->graphicsView_4->setChart(chart);
     ui->graphicsView_4->setStyleSheet("background-color: rgb(255, 255, 255)}");
