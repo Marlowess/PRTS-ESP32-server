@@ -611,7 +611,7 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
 
 
     series->setName("Devices");
-    series->setBrush(QBrush(QColor(166,224,230,70)));
+    series->setBrush(QBrush("red"));
     chart->addSeries(series);
     chart->createDefaultAxes();
 
