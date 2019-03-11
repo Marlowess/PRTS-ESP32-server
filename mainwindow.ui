@@ -34,7 +34,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -546,7 +546,7 @@
 background-color: rgb(32, 74, 135);</string>
       </property>
       <property name="text">
-       <string>START/STOP</string>
+       <string>START SERVER</string>
       </property>
      </widget>
      <widget class="Line" name="line_9">

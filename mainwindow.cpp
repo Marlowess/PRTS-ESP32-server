@@ -39,11 +39,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_movements_devices_click);
     connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::combobox_changed_slot);
 
-//    server = new Server();
-//    threadGui = new WorkerThreadGui();
-//    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
-//    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
-//    threadGui->start();
+    server = new Server();
+    threadGui = new WorkerThreadGui();
+    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
+    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+    threadGui->start();
 
     this->SetMutexsAndCondVars();
 }
@@ -139,11 +139,13 @@ void MainWindow::paintBoardsSlot(){
 //}
 
 
-void MainWindow::on_check_5_stateChanged(){
-    paintBoardsSlot();
+void MainWindow::on_check_5_stateChanged(){   
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_5->isChecked()){
-        if(ui->lineEdit_5->text().isEmpty()) return;
+        if(ui->lineEdit_5->text().isEmpty()
+                || !ui->X_5->value() || !ui->Y_5->value()){
+            return;
+        }
         nBoards++;
         threadGui->setBoardsLocation(0, ui->X_5->value(), ui->Y_5->value(), ui->lineEdit_5->text());
         ui->X_5->setEnabled(false);
@@ -152,20 +154,28 @@ void MainWindow::on_check_5_stateChanged(){
 
     }
     else{
+        if(ui->lineEdit_5->text().isEmpty()
+                || !ui->X_5->value() || !ui->Y_5->value()){
+            return;
+        }
         nBoards--;
         threadGui->setBoardsLocation(0, 0, 0, ui->lineEdit_5->text());
         ui->X_5->setEnabled(true);
         ui->Y_5->setEnabled(true);
         ui->lineEdit_5->setEnabled(true);
     }
+    paintBoardsSlot();
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
-void MainWindow::on_check_6_stateChanged(){
-    paintBoardsSlot();
+void MainWindow::on_check_6_stateChanged(){    
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_6->isChecked()){
+        if(ui->lineEdit_6->text().isEmpty()
+                || !ui->X_6->value() || !ui->Y_6->value()){
+            return;
+        }
         nBoards++;
         threadGui->setBoardsLocation(1, ui->X_6->value(), ui->Y_6->value(), ui->lineEdit_6->text());
         ui->X_6->setEnabled(false);
@@ -173,21 +183,28 @@ void MainWindow::on_check_6_stateChanged(){
         ui->lineEdit_6->setEnabled(false);
     }
     else{
+        if(ui->lineEdit_6->text().isEmpty()
+                || !ui->X_6->value() || !ui->Y_6->value()){
+            return;
+        }
         nBoards--;
         threadGui->setBoardsLocation(1, 0, 0, ui->lineEdit_6->text());
         ui->X_6->setEnabled(true);
         ui->Y_6->setEnabled(true);
         ui->lineEdit_6->setEnabled(true);
     }
-
+    paintBoardsSlot();
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
-void MainWindow::on_check_7_stateChanged(){
-    paintBoardsSlot();
+void MainWindow::on_check_7_stateChanged(){    
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_7->isChecked()){
+        if(ui->lineEdit_7->text().isEmpty()
+                || !ui->X_7->value() || !ui->Y_7->value()){
+            return;
+        }
         nBoards++;
         threadGui->setBoardsLocation(2, ui->X_7->value(), ui->Y_7->value(), ui->lineEdit_7->text());
         ui->X_7->setEnabled(false);
@@ -195,20 +212,28 @@ void MainWindow::on_check_7_stateChanged(){
         ui->lineEdit_7->setEnabled(false);
     }
     else{
+        if(ui->lineEdit_7->text().isEmpty()
+                || !ui->X_7->value() || !ui->Y_7->value()){
+            return;
+        }
         nBoards--;
         threadGui->setBoardsLocation(2, 0, 0, ui->lineEdit_7->text());
         ui->X_7->setEnabled(true);
         ui->Y_7->setEnabled(true);
         ui->lineEdit_7->setEnabled(true);
     }
+    paintBoardsSlot();
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
-void MainWindow::on_check_8_stateChanged(){
-    paintBoardsSlot();
+void MainWindow::on_check_8_stateChanged(){    
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_8->isChecked()){
+        if(ui->lineEdit_8->text().isEmpty()
+                || !ui->X_8->value() || !ui->Y_8->value()){
+            return;
+        }
         nBoards++;
         threadGui->setBoardsLocation(3, ui->X_8->value(), ui->Y_8->value(), ui->lineEdit_8->text());
         ui->X_8->setEnabled(false);
@@ -216,12 +241,17 @@ void MainWindow::on_check_8_stateChanged(){
         ui->lineEdit_8->setEnabled(false);
     }
     else{
+        if(ui->lineEdit_8->text().isEmpty()
+                || !ui->X_8->value() || !ui->Y_8->value()){
+            return;
+        }
         nBoards--;
         threadGui->setBoardsLocation(3, 0, 0, ui->lineEdit_8->text());
         ui->X_8->setEnabled(true);
         ui->Y_8->setEnabled(true);
         ui->lineEdit_8->setEnabled(true);
     }
+    paintBoardsSlot();
     ui->label_boards->setText(QString::number(nBoards));
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
@@ -233,16 +263,19 @@ void MainWindow::on_pushButton_clicked(){
     //    server->setConnection();
     //    connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));
 
-    if(online){
-        online = false;
-        ui->label_status->setText("DISABLED");
-        ui->label_status->setStyleSheet("QLabel { color : red; }");
-    }
-    else{
-        online = true;
-        ui->label_status->setText("ENABLED");
-        ui->label_status->setStyleSheet("QLabel { color : green; }");
-    }
+//    if(online){
+//        online = false;
+//        ui->label_status->setText("DISABLED");
+//        ui->label_status->setStyleSheet("QLabel { color : red; }");
+//    }
+//    else{
+//        online = true;
+//        ui->label_status->setText("ENABLED");
+//        ui->label_status->setStyleSheet("QLabel { color : green; }");
+//    }
+    ui->pushButton->setEnabled(false);
+    ui->label_status->setText("ENABLED");
+    ui->label_status->setStyleSheet("QLabel { color : green; }");
 
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
     server->setPort(1026); // setto la porta
