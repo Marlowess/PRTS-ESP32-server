@@ -619,7 +619,7 @@ void MainWindow::hiddenMacsSlot(QMap<QString, QVector<QString>> map){
     QScatterSeries *series = new QScatterSeries();
     series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     series->setName("Devices");
-    QChart *chart = ui->graphicsView->chart();
+    QChart *chart = ui->graphicsView_5->chart();
     for(QAbstractSeries *q : chart->series())
         if(q->name().compare("Devices") == 0){
             chart->removeSeries(q);
@@ -642,11 +642,46 @@ void MainWindow::hiddenMacsSlot(QMap<QString, QVector<QString>> map){
         i++;
     }
 
-    //connect(series, &QScatterSeries::clicked, this, &MainWindow::on_point_clicked);
+    disconnect(series, &QScatterSeries::clicked, this, &MainWindow::on_hidden_point_clicked);
+    connect(series, &QScatterSeries::clicked, this, &MainWindow::on_hidden_point_clicked);
     chart->addSeries(series);
     chart->createDefaultAxes();
     chart->axisX()->setRange(X_START, X_END);
     chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView_5->setChart(chart);
 
+}
+
+void MainWindow::on_hidden_point_clicked(QPointF point){
+    qDebug() << "HIDDEN X: " << point.x() << ", HIDDEN Y: " << point.y();
+    QString x = QString::number(point.x());
+    QString y = QString::number(point.y());
+
+    if(x[0] == '-')
+        x = x.left(4);
+    else
+        x = x.left(3);
+
+    if(y[0] == '-')
+        y = y.left(4);
+    else
+        y = y.left(3);
+
+    QString str = x + "_" + y;
+    QVector<QString> vec;
+    QString mac = "";
+    if(hidden_map.contains(str)){
+        qDebug() << "HIDDEN POINT!";
+        vec = hidden_map.value(str);
+        //mac = vec.front();
+        QString s2 = "";
+        for(int i = 0; i < vec.size(); i++){
+            s2.append(vec[i]);
+            s2.append("\n");
+        }
+        //QStringList list = mac.split('_');
+        //ui->mac_addresses->setText(list[0].toUpper() + " (" + QString::number(x) + ", " + QString::number(y) + ")");
+        //ui->label_2->setText("This device has been scanned by " + list[1] + " boards.");
+        ui->textBrowser_2->setText(s2);
+    }
 }

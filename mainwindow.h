@@ -59,6 +59,7 @@ private slots:
     void devicesPositionsSlot(QVector<QPointF> vec);
     void on_slider_movement(int);
     void hiddenMacsSlot(QMap<QString, QVector<QString>>);
+    void on_hidden_point_clicked(QPointF);
 
 private:
     Ui::MainWindow *ui;

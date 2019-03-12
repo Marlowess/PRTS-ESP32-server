@@ -444,7 +444,7 @@ QMap<QString, QVector<QString>> MySqlConn::getHiddenDevices(){
 //    unsigned long before = now - 60;
     QString now = "1552391343";
     QString before = "1552387910";
-    QString query_string("select mac_address_device, pos_x, pos_y, count(*) "
+    QString query_string("select mac_address_device, pos_x, pos_y "
                          "from local_macs l "
                          "where timestamp <= " + now + " "
                          "and timestamp >= " + before + " "
@@ -463,9 +463,21 @@ QMap<QString, QVector<QString>> MySqlConn::getHiddenDevices(){
         bool first = true;
         QString listItem = "";
         while (query.next()) {
-            QString name = query.value(idName).toString().toUpper();
+            QString name = query.value(idName).toString();
             QString x = query.value(idX).toString();
+
+            if(x[0] == '-')
+                x = x.left(4);
+            else
+                x = x.left(3);
+
             QString y = query.value(idY).toString();
+
+            if(y[0] == '-')
+                y = y.left(4);
+            else
+                y = y.left(3);
+
             if(first){
                 pos_x = x;
                 pos_y = y;
@@ -485,6 +497,7 @@ QMap<QString, QVector<QString>> MySqlConn::getHiddenDevices(){
                     pos_x = x;
                     pos_y = y;
                     vec.clear();
+                    vec.append(name);
                 }
             }
         }
