@@ -82,30 +82,6 @@ bool MySqlConn::openConn(const QString& dbName, const QString& usrName, const QS
     return ok;
 }
 
-//bool MySqlConn::selectAll() {
-//    bool res = false;
-//    //mutex.lock();
-//    if ( db_m.isValid() && db_m.isOpen() ) {
-//        qDebug() << "== Start Result selectAll ===";
-//        QSqlQuery query("SELECT * FROM probe_requests;", db_m);
-//        int idName = query.record().indexOf("mac_address_device");
-//        while (query.next()) {
-//            QString name = query.value(idName).toString();
-//            if (name.isEmpty()) {
-//                qDebug() << "=== \"Not Available\"";
-//            } else {
-//                qDebug() << "===" << name;
-//            }
-//        }
-//        qDebug() << "== End Result selectAll ===";
-//        res =  true;
-//    } else {
-//        qDebug() << "Query failed";
-//    }
-
-//    //mutex.unlock();
-//    return res;
-//}
 QMap<QString, QVector<QString>> MySqlConn::selectAll(std::shared_ptr<CalculatorDistance> calc) {
     bool res = false;
     std::vector<Position> vec;
@@ -329,6 +305,22 @@ bool MySqlConn::insert_positions_data(QString mac, QString timestamp, float x, f
     } else {
         qDebug() << "Query failed";
     }
+
+
+    if(mac.at(1) == ('2') || mac.at(1) == ('3') || mac.at(1) == ('6') || mac.at(1) == ('7')
+            || mac.at(1) == ('a') || mac.at(1) == ('b') || mac.at(1) == ('e') || mac.at(1) == ('f')){
+        QSqlQuery query2(db_m);
+        query2.prepare("insert into local_macs(mac_address_device,timestamp,pos_x,pos_y) "
+                      "values(:mac_address_device, :timestamp, :x, :y);");
+        query2.bindValue(":mac_address_device", mac);
+        query2.bindValue(":timestamp", timestamp);
+        query2.bindValue(":x", roundf(x*10)/10);
+        query2.bindValue(":y", roundf(y*10)/10);
+        query2.exec();
+    }
+
+
+
     return res;
 }
 
@@ -441,6 +433,63 @@ QVector<QPointF> MySqlConn::getPositionsByDevice(QString start, QString end, QSt
 
 bool MySqlConn::closeConn(){
     db_m.close();
+}
+
+QMap<QString, QVector<QString>> MySqlConn::getHiddenDevices(){
+    QMap<QString, QVector<QString>> map;
+    QVector<QString> vec;
+    QString pos_x = "";
+    QString pos_y = "";
+//    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+//    unsigned long before = now - 60;
+    QString now = "1552391343";
+    QString before = "1552387910";
+    QString query_string("select mac_address_device, pos_x, pos_y, count(*) "
+                         "from local_macs l "
+                         "where timestamp <= " + now + " "
+                         "and timestamp >= " + before + " "
+                         "group by mac_address_device, pos_x, pos_y "
+                         "order by pos_x, pos_y;");
+    if ( db_m.isValid() && db_m.isOpen() ) {
+        //qDebug() << "== Start Result selectAll ===";
+        QSqlQuery query(query_string, db_m);
+        if (!query.exec()){
+              qDebug() << query.lastError();
+              return map;
+        }
+        int idName = query.record().indexOf("mac_address_device");
+        int idX = query.record().indexOf("pos_x");
+        int idY = query.record().indexOf("pos_y");
+        bool first = true;
+        QString listItem = "";
+        while (query.next()) {
+            QString name = query.value(idName).toString().toUpper();
+            QString x = query.value(idX).toString();
+            QString y = query.value(idY).toString();
+            if(first){
+                pos_x = x;
+                pos_y = y;
+                //listItem += name + "\n";
+                vec.append(name);
+                first = false;
+            }
+            else{
+                // EQUAL
+                if(!QString::compare(pos_x, x) && !QString::compare(pos_y, y)){
+                    vec.append(name);
+                }
+
+                // DIFFERENT
+                else{
+                    map.insert(pos_x+"_"+pos_y, vec);
+                    pos_x = x;
+                    pos_y = y;
+                    vec.clear();
+                }
+            }
+        }
+        return map;
+    }
 }
 
 

@@ -11,6 +11,7 @@
 #include <memory>
 #include <QPoint>
 #include "historical_device.h"
+#include <math.h>
 
 class MySqlConn{
 public:
@@ -25,6 +26,7 @@ public:
     QVector<Historical_device> getHistoricalData(QString start, QString end);
     bool delete_table(QString time);
     bool closeConn();
+    QMap<QString, QVector<QString>> getHiddenDevices();
 
 
     QList<QPair<QString, double>>* getNumDevicesByTimestamp(std::chrono::seconds start, std::chrono::seconds end);

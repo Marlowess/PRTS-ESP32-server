@@ -27,6 +27,7 @@ signals:
     void newDataSignal(QVector<Historical_device>);
     void devicesListSignal(QStringList);
     void devicePositionsSignal(QVector<QPointF>);
+    void hiddenMacsSignal(QMap<QString, QVector<QString>>);
 };
 
 #endif // HISTORICAL_THREAD_H

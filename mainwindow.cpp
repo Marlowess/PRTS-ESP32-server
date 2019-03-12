@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "qcustomplot.h"
 
 #define X_START -6
 #define X_END 6
@@ -356,8 +355,21 @@ void MainWindow::on_tab_click(int index){
             ui->dateTimeEdit_3->setDateTime(QDateTime::currentDateTime());
             ui->dateTimeEdit_4->setDateTime(QDateTime::currentDateTime());
         }
-
-    }
+        break;
+    case 4:
+        if(!tab_4_instantiate){
+            tab_4_instantiate = true;
+            QChart *chart = new QChart();
+            chart->setTheme(QChart::ChartThemeBlueCerulean);
+            ui->graphicsView_5->setStyleSheet("background-color: rgb(255, 255, 255)}");
+            ui->graphicsView_5->setChart(chart);
+            hist_thread = new Historical_thread(QString::number(0), QString::number(0), 3);
+            qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
+            connect(hist_thread, &Historical_thread::hiddenMacsSignal, this, &MainWindow::hiddenMacsSlot);
+            hist_thread->start();
+        }
+        break;
+    }    
     this->old_tab = index;
     this->ManageTab1(index);
     return;
@@ -573,7 +585,7 @@ void MainWindow::combobox_changed_slot(QString device){
 void MainWindow::devicesPositionsSlot(QVector<QPointF> vec){
     this->devicePositions = vec;
     ui->horizontalSlider->setMinimum(0);
-    ui->horizontalSlider->setMaximum(vec.size()-1);
+    ui->horizontalSlider->setMaximum(vec.size());
     ui->horizontalSlider->setValue(0);
     disconnect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
     connect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
@@ -586,7 +598,8 @@ void MainWindow::on_slider_movement(int value){
 
     QScatterSeries *series = new QScatterSeries();
 
-    series->append(devicePositions[value]);
+    for(int i = 0; i < value; i++)
+            series->append(devicePositions[i]);
 
     series->setPen(QPen(3));
     series->setName("Device");
@@ -596,4 +609,44 @@ void MainWindow::on_slider_movement(int value){
     chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView_3->setChart(chart);
     ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");    
+}
+
+void MainWindow::hiddenMacsSlot(QMap<QString, QVector<QString>> map){
+//    for(int i = 0; i < list.size(); i++)
+//        qDebug() << "HIDDEN MAC LIST: " << list[i];
+    hidden_map = map;
+
+    QScatterSeries *series = new QScatterSeries();
+    series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+    series->setName("Devices");
+    QChart *chart = ui->graphicsView->chart();
+    for(QAbstractSeries *q : chart->series())
+        if(q->name().compare("Devices") == 0){
+            chart->removeSeries(q);
+            delete q;
+            break;
+        }
+    QMap<QString, QVector<QString>>::const_iterator i = map.constBegin();
+    while(i != map.constEnd()) {
+        //qDebug() << "Chiave:" << i.key() << " Values:" << i.value() << endl;
+        QString key = i.key();
+        //QString val = i.value()[0];
+        QStringList list = key.split('_');
+        qDebug() << "Chiave:" << list[0] << " Values:" << list[1] << endl;
+        int iX = list[0].indexOf(",", 0);
+        int iY = list[1].indexOf(",", 0);
+        double x = list[0].replace(iX, 1, ".").toDouble();
+        double y = list[1].replace(iY, 1, ".").toDouble();
+        qDebug() << "PosX: " << x << " PosY: " << y << endl;
+        series->append(x, y);
+        i++;
+    }
+
+    //connect(series, &QScatterSeries::clicked, this, &MainWindow::on_point_clicked);
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+    chart->axisX()->setRange(X_START, X_END);
+    chart->axisY()->setRange(Y_START, Y_END);
+    ui->graphicsView_5->setChart(chart);
+
 }

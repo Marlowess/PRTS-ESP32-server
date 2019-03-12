@@ -28,6 +28,13 @@ void Historical_thread::run(){
         emit devicePositionsSignal(points);
         break;
     }
+    case 3:{
+        while(true){
+            QMap<QString, QVector<QString>> hidden = connection.getHiddenDevices();
+            emit hiddenMacsSignal(hidden);
+            sleep(3);
+        }
+    }
     default:
         return;
     }

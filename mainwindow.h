@@ -58,6 +58,7 @@ private slots:
     void combobox_changed_slot(QString);
     void devicesPositionsSlot(QVector<QPointF> vec);
     void on_slider_movement(int);
+    void hiddenMacsSlot(QMap<QString, QVector<QString>>);
 
 private:
     Ui::MainWindow *ui;
@@ -71,8 +72,8 @@ private:
     QString historical_timestamp_end;
     QString movements_timestamp_start;
     QString movements_timestamp_end;
-    //QStringList devicesList;
     QVector<QPointF> devicePositions;
+    QMap<QString, QVector<QString>> hidden_map;
 
     qreal findMedian(int begin, int end);
 
@@ -91,6 +92,7 @@ private:
     int old_tab;
     bool tab_2_instantiate = false;
     bool tab_3_instantiate = false;
+    bool tab_4_instantiate = false;
 
     // FRANK ADD FUNCTIONs
     void ManageTab1(int);
