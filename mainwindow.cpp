@@ -56,15 +56,11 @@ void MainWindow::initializeChart(){
     series->setName("ESP");
     series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     series->setMarkerSize(10);
-    //series->setColor(QColor(51,51,255));
-    //series->setPointLabelsColor(QColor(51,51,255));
 
     QScatterSeries *seriesDevices = new QScatterSeries();
     seriesDevices->setName("Devices");
     seriesDevices->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     seriesDevices->setMarkerSize(10);
-    //seriesDevices->setColor(QColor(255,128,0));
-    //seriesDevices->setPointLabelsColor(QColor(255,128,0));
 
     chart->addSeries(series);
     chart->addSeries(seriesDevices);
@@ -126,18 +122,6 @@ void MainWindow::paintBoardsSlot(){
     chart->axisY()->setRange(Y_START, Y_END);
     ui->graphicsView->setChart(chart);
 }
-
-
-//void MainWindow::on_connectButton_clicked(){
-//    server->setPort(ui->lineEdit->text().toInt());
-//    server->setConnection();
-//    connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));
-//}
-
-//void MainWindow::showConnectionStatus(){
-//    ui->checkConn->setChecked(true);
-//}
-
 
 void MainWindow::on_check_5_stateChanged(){   
     int nBoards = ui->label_boards->text().toInt();
@@ -258,21 +242,6 @@ void MainWindow::on_check_8_stateChanged(){
 
 
 void MainWindow::on_pushButton_clicked(){
-
-    //    server->setPort(ui->lineEdit->text().toInt());
-    //    server->setConnection();
-    //    connect(server, SIGNAL(newConnection()), this, SLOT(showConnectionStatus()));
-
-//    if(online){
-//        online = false;
-//        ui->label_status->setText("DISABLED");
-//        ui->label_status->setStyleSheet("QLabel { color : red; }");
-//    }
-//    else{
-//        online = true;
-//        ui->label_status->setText("ENABLED");
-//        ui->label_status->setStyleSheet("QLabel { color : green; }");
-//    }
     ui->pushButton->setEnabled(false);
     ui->label_status->setText("ENABLED");
     ui->label_status->setStyleSheet("QLabel { color : green; }");
@@ -300,27 +269,6 @@ void MainWindow::on_point_clicked(QPointF point){
 }
 
 /** This method is invoked each time the server has finished data handling on DB **/
-//void MainWindow::printDevicesSlot(std::vector<Position> vector){
-//   // qDebug() << "Ready to print devices on chart" << endl;
-//    QScatterSeries *series = new QScatterSeries();
-//    series->setName("Devices");
-//    QChart *chart = ui->graphicsView->chart();
-//    for(QAbstractSeries *q : chart->series())
-//        if(q->name().compare("Devices") == 0){
-//            chart->removeSeries(q);
-//            delete q;
-//            break;
-//        }
-//    series->append(x,y);
-//    series->append(4,4);
-//    series->append(6,6);
-//    chart->addSeries(series);
-//    chart->createDefaultAxes();
-//    chart->axisX()->setRange(0, 10.0);
-//    chart->axisY()->setRange(0, 10.0);
-//    ui->graphicsView->setChart(chart);
-//}
-
 void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
     // qDebug() << "Ready to print devices on chart" << endl;
     this->points_map = map;
@@ -444,7 +392,6 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
 
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
-    //    chart->addSeries(acmeSeries);
     chart->setTitle("Historical Data");
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
@@ -459,8 +406,6 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
     chart->axisY()->setRange(historical_timestamp_start, historical_timestamp_end);
     chart->axisY()->setLabelsVisible(false);
     chart->axisY()->setTitleText("Time interval");
-    //    chart->axes(Qt::Vertical).first()->setMin(historical_timestamp_start);
-    //    chart->axes(Qt::Horizontal).first()->setMax(historical_timestamp_end);
 
     ui->graphicsView_2->setStyleSheet("background-color: rgb(255, 255, 255)}");
     ui->graphicsView_2->setChart(chart);
@@ -561,28 +506,6 @@ void MainWindow::ManageTab1(int curr_tab) {
     }
 }
 void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
-//    if(List == nullptr) return;
-//    qDebug() << "make plot tab one";
-//    ui->customPlot->addGraph();
-//    //ui->customPlot->setBackground(QBrush(QChart::ChartThemeBlueCerulean));
-//    QVector<double> x(List->size()), y(List->size());
-//    for(int i = 0; i < List->size(); i++) {
-//        //qDebug() << List->at(i).second;
-//        y[i] = List->at(i).second;
-//        x[i] = i;
-//    }
-//    ui->customPlot->graph(0)->setData(x, y);
-//    ui->customPlot->graph()->setBrush(QBrush(QColor(166,224,230,70)));
-//    ui->customPlot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1), QBrush(Qt::white), 8));
-//    // give the axes some labels:
-//    ui->customPlot->xAxis->setLabel("Minutes");
-//    ui->customPlot->yAxis->setLabel("Device Counted");
-//    // set axes ranges, so we see all data:
-//    ui->customPlot->xAxis->setRange(0, List->size());
-//    ui->customPlot->yAxis->setRange(0, 15); // 0, 150
-//    ui->customPlot->replot();
-//    delete List;
-
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
     if(List == nullptr) {
@@ -598,18 +521,6 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
         int time = List->at(i).first.toInt();
         series->append((time - reference)%300, List->at(i).second);
     }
-
-
-//    unsigned long diff;
-//    if(i == 1)
-//        diff = now.count() - List->at(List->size()-1).second;
-//    else
-//        diff = now.count() - List->at(List->size()-1).first.toInt();
-
-//    for(int j = 0; j < diff; j++)
-//        series->append(i+j-1, 0);
-
-
     series->setName("Devices");
     series->setBrush(QBrush("red"));
     chart->addSeries(series);
@@ -661,35 +572,21 @@ void MainWindow::combobox_changed_slot(QString device){
 
 void MainWindow::devicesPositionsSlot(QVector<QPointF> vec){
     this->devicePositions = vec;
-//    for(int i = 0; i < vec.size(); i++){
-//        qDebug() << "X: " << vec[i].x() << ", Y: " << vec[i].y();
-//    }
-//    ui->horizontalSlider->setTickInterval(vec.size());
     ui->horizontalSlider->setMinimum(0);
-    ui->horizontalSlider->setMaximum(vec.size());
+    ui->horizontalSlider->setMaximum(vec.size()-1);
     ui->horizontalSlider->setValue(0);
     disconnect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
     connect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindow::on_slider_movement);
 }
 
 void MainWindow::on_slider_movement(int value){
-    //qDebug() << "POSITION: " << value;
-//    qDebug() << value;
-//    if(value-1 < 0) return;
-//    qDebug() << "X: " << devicePositions[value-1].x() << ", Y: " << devicePositions[value-1].y();
 
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
 
     QScatterSeries *series = new QScatterSeries();
-    //seriesDevices->setName("Devices");
-//    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-//    series->setMarkerSize(10);
-    //seriesDevices->setColor(QColor(255,128,0));
-    //seriesDevices->setPointLabelsColor(QColor(255,128,0));
 
-    for(int i = 0; i < value; i++)
-        series->append(devicePositions[i]);
+    series->append(devicePositions[value]);
 
     series->setPen(QPen(3));
     series->setName("Device");
