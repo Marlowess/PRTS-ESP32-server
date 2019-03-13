@@ -538,11 +538,12 @@
        <font>
         <family>URW Gothic L</family>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(78, 154, 6);
+       <string notr="true">background-color: rgb(29, 151, 30);
 color:rgb(255, 255, 255);</string>
       </property>
       <property name="text">
@@ -1222,7 +1223,7 @@ p, li { white-space: pre-wrap; }
          <x>0</x>
          <y>0</y>
          <width>191</width>
-         <height>61</height>
+         <height>71</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -1236,6 +1237,8 @@ p, li { white-space: pre-wrap; }
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#000000;&quot;&gt;These are the local MAC addresses related to the clicked position:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
+      <zorder>textBrowser</zorder>
+      <zorder>textEdit</zorder>
      </widget>
     </widget>
    </widget>

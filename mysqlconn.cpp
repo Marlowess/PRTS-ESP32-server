@@ -441,7 +441,7 @@ QMap<QString, QVector<QString>> MySqlConn::getHiddenDevices(){
     QString pos_x = "";
     QString pos_y = "";
     unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
-    unsigned long before = now - 5;
+    unsigned long before = now - 15;
 //    QString now = "1552391343";
 //    QString before = "1552387910";
     QString query_string("select mac_address_device, pos_x, pos_y "

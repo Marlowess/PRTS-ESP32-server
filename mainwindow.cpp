@@ -450,7 +450,7 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
         series->append(i+1, endTime);
         series->setName(mac.toUpper());
         chart->addSeries(series);
-        connect(series, &QLineSeries::clicked, this, &MainWindow::on_history_series_click);
+        connect(series, &QLineSeries::hovered, this, &MainWindow::on_history_series_click);
         QPen pen = series->pen();
         pen.setWidth(5);
         series->setPen(pen);
@@ -548,6 +548,7 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
         int time = List->at(i).first.toInt();
         series->append((time - reference)%300, List->at(i).second);
     }
+    series->setPointsVisible(true);
     series->setName("Devices");
     series->setBrush(QBrush("red"));
     disconnect(series, &QLineSeries::hovered, this, &MainWindow::showPointValueTemporalDiagram);
