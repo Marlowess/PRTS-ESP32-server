@@ -35,11 +35,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_movements_devices_click);
     connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::combobox_changed_slot);
 
-//    server = new Server();
-//    threadGui = new WorkerThreadGui();
-//    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
-//    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
-//    threadGui->start();
+    server = new Server();
+    threadGui = new WorkerThreadGui();
+    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
+    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+    threadGui->start();
 
     this->SetMutexsAndCondVars();
 }
@@ -239,6 +239,7 @@ void MainWindow::on_check_8_stateChanged(){
 
 void MainWindow::on_pushButton_clicked(){
     ui->pushButton->setEnabled(false);
+    ui->pushButton->setStyleSheet("QPushButton { color : grey; }");
     ui->label_status->setText("ENABLED");
     ui->label_status->setStyleSheet("QLabel { color : green; }");
 
@@ -521,7 +522,7 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
         return;
     }
 
-    QLineSeries *series = new QLineSeries();   
+    QLineSeries *series = new QLineSeries();
     //unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
     //std::chrono::seconds now = std::chrono::seconds(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000)-20);
     int i = 1;
