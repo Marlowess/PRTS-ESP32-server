@@ -440,14 +440,14 @@ QMap<QString, QVector<QString>> MySqlConn::getHiddenDevices(){
     QVector<QString> vec;
     QString pos_x = "";
     QString pos_y = "";
-//    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
-//    unsigned long before = now - 60;
-    QString now = "1552391343";
-    QString before = "1552387910";
+    unsigned long now = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000);
+    unsigned long before = now - 5;
+//    QString now = "1552391343";
+//    QString before = "1552387910";
     QString query_string("select mac_address_device, pos_x, pos_y "
                          "from local_macs l "
-                         "where timestamp <= " + now + " "
-                         "and timestamp >= " + before + " "
+                         "where timestamp <= " + QString::number(now) + " "
+                         "and timestamp >= " + QString::number(before) + " "
                          "group by mac_address_device, pos_x, pos_y "
                          "order by pos_x, pos_y;");
     if ( db_m.isValid() && db_m.isOpen() ) {

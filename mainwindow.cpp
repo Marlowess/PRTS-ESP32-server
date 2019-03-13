@@ -2,6 +2,7 @@
 
 ConfigInfo configuration;
 
+/** Constructor of the GUI handling thread **/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow){
@@ -16,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << "PORT: " << std::stoi(configuration.at("port"));
 
     initializeChart();
-    //background-color: rgb(211, 215, 207);
     ui->frame->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px; background-color: rgb(211, 215, 207)}");
     ui->label_30->setStyleSheet("font: bold large Times New Roman");
     ui->label_status->setText("DISABLED");
@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->SetMutexsAndCondVars();
 }
 
+/** This method instantiates the console interface **/
 void MainWindow::initializeChart(){
     QChart *chart = new QChart();
     chart->setTheme(QChart::ChartThemeBlueCerulean);
@@ -68,6 +69,7 @@ void MainWindow::initializeChart(){
     ui->label_boards->setText("0");
 }
 
+/** Destructor of the GUI handling thread **/
 MainWindow::~MainWindow(){
     if(workerTab_One != nullptr) {
         delete  workerTab_One;
@@ -75,6 +77,9 @@ MainWindow::~MainWindow(){
     delete ui;
 }
 
+/** This method is invoked anytime the state of a checker state changes.
+    It means that a new board has been added to the system or one has been removed
+**/
 void MainWindow::paintBoardsSlot(){
     QScatterSeries *series = new QScatterSeries();
     series->setName("ESP");
@@ -85,7 +90,6 @@ void MainWindow::paintBoardsSlot(){
             delete q;
             break;
         }
-
 
     // First checkBox
     if(ui->check_5->isChecked())
@@ -119,6 +123,7 @@ void MainWindow::paintBoardsSlot(){
     ui->graphicsView->setChart(chart);
 }
 
+/** First board state **/
 void MainWindow::on_check_5_stateChanged(){   
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_5->isChecked()){
@@ -149,6 +154,7 @@ void MainWindow::on_check_5_stateChanged(){
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
+/** Second board state **/
 void MainWindow::on_check_6_stateChanged(){    
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_6->isChecked()){
@@ -178,6 +184,7 @@ void MainWindow::on_check_6_stateChanged(){
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
+/** Third board state **/
 void MainWindow::on_check_7_stateChanged(){    
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_7->isChecked()){
@@ -207,6 +214,7 @@ void MainWindow::on_check_7_stateChanged(){
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
+/** Fourth board state **/
 void MainWindow::on_check_8_stateChanged(){    
     int nBoards = ui->label_boards->text().toInt();
     if(ui->check_8->isChecked()){
@@ -236,7 +244,9 @@ void MainWindow::on_check_8_stateChanged(){
     server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
 }
 
-
+/** This method is invoked when the blue button in the homepage has been pressed.
+    It creates a new instance of a server and it runs in order to accept new connections by the boards.
+**/
 void MainWindow::on_pushButton_clicked(){
     ui->pushButton->setEnabled(false);
     ui->pushButton->setStyleSheet("QPushButton { color : grey; }");
@@ -248,6 +258,10 @@ void MainWindow::on_pushButton_clicked(){
     server->setConnection(); // faccio partire la connessione
 }
 
+
+/** This method is invoked when a point on the chart is clicked. It shows infos about the device
+    represented by the point such as mac address and position in the room and
+**/
 void MainWindow::on_point_clicked(QPointF point){
     //ui->mac_addresses->setText("Questo slot funziona!");
     float x = point.x();
@@ -295,7 +309,7 @@ void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
         i++;
     }
 
-    connect(series, &QScatterSeries::clicked, this, &MainWindow::on_point_clicked);
+    connect(series, &QScatterSeries::hovered, this, &MainWindow::on_point_clicked);
     chart->addSeries(series);
     chart->createDefaultAxes();
     chart->axisX()->setRange(configuration.at("x_start").c_str(), configuration.at("x_end").c_str());
@@ -303,6 +317,7 @@ void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
     ui->graphicsView->setChart(chart);
 }
 
+/** This method handle clicks on tabs **/
 void MainWindow::on_tab_click(int index){
     //qDebug() << "CLICKED TAB " << QString::number(index);
     switch(index){
@@ -373,9 +388,10 @@ void MainWindow::on_tab_click(int index){
     return;
 }
 
-void MainWindow::on_historical_button_click(){
-
-    //uint msecs = ui->dateTimeEdit->time().msecsTo(ui->dateTimeEdit->time());
+/** This method is invoked when the user clicks on the button in order to visualize historical data
+    about scanned packets. It calls the DB and shows returned data in a line chart.
+**/
+void MainWindow::on_historical_button_click(){  
     QDateTime start_timestamp = ui->dateTimeEdit->dateTime();
     QDateTime end_timestamp = ui->dateTimeEdit_2->dateTime();
 
@@ -389,6 +405,7 @@ void MainWindow::on_historical_button_click(){
     hist_thread->start();
 }
 
+/** This slot is called by the thread that gets ihistorical data from the DB **/
 void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
 
     if(vec.size() == 0) {
@@ -412,7 +429,7 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
 
     chart->createDefaultAxes();
     chart->axisX()->setRange(0, vec.size()+1);
-    chart->axisX()->setLabelsVisible(false);
+    chart->axisX()->setLabelsVisible(false);    
     chart->axisY()->setRange(historical_timestamp_start, historical_timestamp_end);
     chart->axisY()->setLabelsVisible(false);
     chart->axisY()->setTitleText("Time interval");
@@ -421,12 +438,12 @@ void MainWindow::newHistoricalDataSlot(QVector<Historical_device> vec){
     ui->graphicsView_2->setChart(chart);
 }
 
+/** This method draws the chart in order to shows the historical data as vertical lines **/
 void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
     for(int i = 0; i < vec.size(); i++){
         QString mac = vec[i].getMacAddress();
         int startTime = vec[i].getStartTimestamp().toInt();
         int endTime = vec[i].getEndTimestamp().toInt();
-        int nTimes = vec[i].getNTimes();
 
         QLineSeries *series = new QLineSeries();
         series->append(i+1, startTime);
@@ -440,9 +457,9 @@ void MainWindow::boxPlotFiller(QVector<Historical_device> vec, QChart *chart){
     }
 }
 
+/** This method is invoked when the user clicks on the vertical line representing historical captures **/
 void MainWindow::on_history_series_click(QPointF point){
     int x = roundf(point.x()) - 1;
-    qDebug() << "CLICKED SERIES WITH X " << x;
 
     ui->label_16->setText(historical_vector[x].getMacAddress().toUpper());
 
@@ -457,7 +474,7 @@ void MainWindow::on_history_series_click(QPointF point){
     ui->label_20->setText(QString::number(historical_vector[x].getNTimes()));
 }
 
-// FRANK ADD FUNCTIONs
+/** This method creates and sets mutex for handling the tab that shows the number of devices in the last 5 minutes **/
 void MainWindow::SetMutexsAndCondVars(void) {
     // FRANK ADD f()
     qDebug() << "setup mutexs and cond variables";
@@ -533,12 +550,16 @@ void MainWindow::makePlotTab_One(QList<QPair<QString, double>> *List) {
     }
     series->setName("Devices");
     series->setBrush(QBrush("red"));
+    disconnect(series, &QLineSeries::hovered, this, &MainWindow::showPointValueTemporalDiagram);
+    connect(series, &QLineSeries::hovered, this, &MainWindow::showPointValueTemporalDiagram);
     chart->addSeries(series);
     chart->createDefaultAxes();
 
     //chart->axisX()->setRange(0, (int)now - List->at(0).second);
     chart->axisX()->setRange(0, 300);
+    chart->axisX()->setTitleText("Seconds");
     chart->axisY()->setRange(0, 10);
+    chart->axisY()->setTitleText("Number of devices");
     ui->graphicsView_4->setChart(chart);
     ui->graphicsView_4->setStyleSheet("background-color: rgb(255, 255, 255)}");
     delete List;
@@ -616,7 +637,7 @@ void MainWindow::hiddenMacsSlot(QMap<QString, QVector<QString>> map){
 
     QScatterSeries *series = new QScatterSeries();
     series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-    series->setColor(QColor::fromRgb(217, 0, 0));
+    series->setColor(QColor::fromRgb(1, 193, 0));
     series->setName("Device with a hidden MAC");
 
     QChart *chart = ui->graphicsView_5->chart();
@@ -642,8 +663,8 @@ void MainWindow::hiddenMacsSlot(QMap<QString, QVector<QString>> map){
         i++;
     }
 
-    disconnect(series, &QScatterSeries::clicked, this, &MainWindow::on_hidden_point_clicked);
-    connect(series, &QScatterSeries::clicked, this, &MainWindow::on_hidden_point_clicked);
+    disconnect(series, &QScatterSeries::hovered, this, &MainWindow::on_hidden_point_clicked);
+    connect(series, &QScatterSeries::hovered, this, &MainWindow::on_hidden_point_clicked);
     chart->addSeries(series);
     chart->createDefaultAxes();
     chart->axisX()->setRange(configuration.at("x_start").c_str(), configuration.at("x_end").c_str());
@@ -680,5 +701,14 @@ void MainWindow::on_hidden_point_clicked(QPointF point){
             s2.append("\n");
         }
         ui->textEdit->setText(s2);
+        ui->textEdit->setEnabled(false);
+
+        //ui->textBrowser->setStyleSheet(".QFrame{border: 1px solid black; border-radius: 10px; background-color: rgb(211, 215, 207)}");
     }
+}
+
+void MainWindow::showPointValueTemporalDiagram(QPointF p, bool s) {
+    int y = p.y();
+    ui->label_31->setText(QString("Number of devices: %1").arg(y));
+    //qDebug() << s;
 }

@@ -32,7 +32,7 @@ void Historical_thread::run(){
         while(true){
             QMap<QString, QVector<QString>> hidden = connection.getHiddenDevices();
             emit hiddenMacsSignal(hidden);
-            sleep(20);
+            sleep(2);
         }
     }
     default:
