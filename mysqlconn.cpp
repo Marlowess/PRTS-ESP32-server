@@ -463,7 +463,7 @@ QMap<QString, QVector<QString>> MySqlConn::getHiddenDevices(){
         bool first = true;
         QString listItem = "";
         while (query.next()) {
-            QString name = query.value(idName).toString();
+            QString name = query.value(idName).toString().toUpper();
             QString x = query.value(idX).toString();
 
             if(x[0] == '-')

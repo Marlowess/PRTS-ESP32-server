@@ -59,4 +59,4 @@ FORMS += \
 CONFIG += c++11
 
 DISTFILES += \
-    config.txt
+    pds.conf

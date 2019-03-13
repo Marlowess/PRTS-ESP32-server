@@ -1,11 +1,6 @@
 #include "mainwindow.h"
 
-#define X_START -6
-#define X_END 6
-#define Y_START -6
-#define Y_END 6
-
-bool online = false; // system ON/OFF
+ConfigInfo configuration;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     int y = dw.height() * 0.92;
     setFixedSize(x,y);
 
+    configuration = readConfigFile();
+    qDebug() << "PORT: " << std::stoi(configuration.at("port"));
 
     initializeChart();
     //background-color: rgb(211, 215, 207);
@@ -38,11 +35,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_movements_devices_click);
     connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::combobox_changed_slot);
 
-    server = new Server();
-    threadGui = new WorkerThreadGui();
-    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
-    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
-    threadGui->start();
+//    server = new Server();
+//    threadGui = new WorkerThreadGui();
+//    qRegisterMetaType<QMap<QString, QVector<QString>>>("QMap<QString, QVector<QString>>");
+//    connect(threadGui, &WorkerThreadGui::paintDevicesSignal, this, &MainWindow::printDevicesSlot);
+//    threadGui->start();
 
     this->SetMutexsAndCondVars();
 }
@@ -64,8 +61,8 @@ void MainWindow::initializeChart(){
     chart->addSeries(series);
     chart->addSeries(seriesDevices);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(X_START, X_END);
-    chart->axisY()->setRange(Y_START, Y_END);
+    chart->axisX()->setRange(configuration.at("x_start").c_str(), configuration.at("x_end").c_str());
+    chart->axisY()->setRange(configuration.at("y_start").c_str(), configuration.at("y_end").c_str());
     ui->graphicsView->setChart(chart);
     ui->graphicsView->setStyleSheet("background-color: rgb(255, 255, 255)}");
     ui->label_boards->setText("0");
@@ -117,8 +114,8 @@ void MainWindow::paintBoardsSlot(){
 
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(X_START, X_END);
-    chart->axisY()->setRange(Y_START, Y_END);
+    chart->axisX()->setRange(configuration.at("x_start").c_str(), configuration.at("x_end").c_str());
+    chart->axisY()->setRange(configuration.at("y_start").c_str(), configuration.at("y_end").c_str());
     ui->graphicsView->setChart(chart);
 }
 
@@ -245,8 +242,8 @@ void MainWindow::on_pushButton_clicked(){
     ui->label_status->setText("ENABLED");
     ui->label_status->setStyleSheet("QLabel { color : green; }");
 
-    server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board
-    server->setPort(1026); // setto la porta
+    server->setNumberOfHosts(ui->label_boards->text().toInt()); // setto il numero di board    
+    server->setPort(std::stoi(configuration.at("port"))); // setto la porta
     server->setConnection(); // faccio partire la connessione
 }
 
@@ -300,8 +297,8 @@ void MainWindow::printDevicesSlot(QMap<QString, QVector<QString>> map){
     connect(series, &QScatterSeries::clicked, this, &MainWindow::on_point_clicked);
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(X_START, X_END);
-    chart->axisY()->setRange(Y_START, Y_END);
+    chart->axisX()->setRange(configuration.at("x_start").c_str(), configuration.at("x_end").c_str());
+    chart->axisY()->setRange(configuration.at("y_start").c_str(), configuration.at("y_end").c_str());
     ui->graphicsView->setChart(chart);
 }
 
@@ -605,8 +602,8 @@ void MainWindow::on_slider_movement(int value){
     series->setName("Device");
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(X_START, X_END);
-    chart->axisY()->setRange(Y_START, Y_END);
+    chart->axisX()->setRange(configuration.at("x_start").c_str(), configuration.at("x_end").c_str());
+    chart->axisY()->setRange(configuration.at("y_start").c_str(), configuration.at("y_end").c_str());
     ui->graphicsView_3->setChart(chart);
     ui->graphicsView_3->setStyleSheet("background-color: rgb(255, 255, 255)}");    
 }
@@ -617,11 +614,13 @@ void MainWindow::hiddenMacsSlot(QMap<QString, QVector<QString>> map){
     hidden_map = map;
 
     QScatterSeries *series = new QScatterSeries();
-    series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
-    series->setName("Devices");
+    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+    series->setColor(QColor::fromRgb(217, 0, 0));
+    series->setName("Device with a hidden MAC");
+
     QChart *chart = ui->graphicsView_5->chart();
     for(QAbstractSeries *q : chart->series())
-        if(q->name().compare("Devices") == 0){
+        if(q->name().compare("Device with a hidden MAC") == 0){
             chart->removeSeries(q);
             delete q;
             break;
@@ -646,8 +645,8 @@ void MainWindow::hiddenMacsSlot(QMap<QString, QVector<QString>> map){
     connect(series, &QScatterSeries::clicked, this, &MainWindow::on_hidden_point_clicked);
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->axisX()->setRange(X_START, X_END);
-    chart->axisY()->setRange(Y_START, Y_END);
+    chart->axisX()->setRange(configuration.at("x_start").c_str(), configuration.at("x_end").c_str());
+    chart->axisY()->setRange(configuration.at("y_start").c_str(), configuration.at("y_end").c_str());
     ui->graphicsView_5->setChart(chart);
 
 }
@@ -671,7 +670,7 @@ void MainWindow::on_hidden_point_clicked(QPointF point){
     QVector<QString> vec;
     QString mac = "";
     if(hidden_map.contains(str)){
-        qDebug() << "HIDDEN POINT!";
+        //qDebug() << "HIDDEN POINT!";
         vec = hidden_map.value(str);
         //mac = vec.front();
         QString s2 = "";
@@ -679,9 +678,6 @@ void MainWindow::on_hidden_point_clicked(QPointF point){
             s2.append(vec[i]);
             s2.append("\n");
         }
-        //QStringList list = mac.split('_');
-        //ui->mac_addresses->setText(list[0].toUpper() + " (" + QString::number(x) + ", " + QString::number(y) + ")");
-        //ui->label_2->setText("This device has been scanned by " + list[1] + " boards.");
-        ui->textBrowser_2->setText(s2);
+        ui->textEdit->setText(s2);
     }
 }

@@ -19,6 +19,8 @@
 // FRANK ADD LIBs
 #include "workerthreadtab.h"
 
+#include "utilities.h"
+
 
 namespace Ui {
 class MainWindow;
