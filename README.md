@@ -1,4 +1,4 @@
-# Sistema di rilevamento presenze per mezzo di dispositivi esp32
+# Sistema di rilevamento presenze per mezzo di dispositivi esp32 (server)
 Una	delle	caratteristiche	degli	smartphone	è	la	loro	capacità	di	riconnettersi	rapidamente	a
 una	 rete	 WiFi	 cui	 sono	 stati	 precedentemente	 associati,	 non	 appena	 si	 vengono	 a	 trovare	
 all’interno	della	sua	area	di	copertura.	Tale	comportamento	è	reso	possibile	dalla	cosiddetta	
